@@ -114,6 +114,29 @@ async function listActiveUsers() {
   return response.json();
 }
 
+async function listExistingContactsByHubspotIds(hubspotContactIds) {
+  if (hubspotContactIds.length === 0) {
+    return [];
+  }
+
+  const batchSize = 100;
+  const results = [];
+
+  for (let index = 0; index < hubspotContactIds.length; index += batchSize) {
+    const batch = hubspotContactIds.slice(index, index + batchSize);
+    const inFilter = batch.map((id) => `"${String(id)}"`).join(",");
+
+    const response = await supabaseFetch(
+      `/rest/v1/contacts?select=id,hubspot_contact_id,current_stage_id,current_list_id,owner_id,notes,source,form_name,entered_at&hubspot_contact_id=in.(${encodeURIComponent(inFilter)})`,
+    );
+
+    const data = await response.json();
+    results.push(...data);
+  }
+
+  return results;
+}
+
 function buildFullName(properties) {
   const first = properties.firstname?.trim() ?? "";
   const last = properties.lastname?.trim() ?? "";
@@ -250,10 +273,18 @@ export async function syncHubspotContacts() {
   }
 
   const hubspotContacts = await fetchHubspotContacts();
+  const existingContacts = await listExistingContactsByHubspotIds(
+    hubspotContacts.map((contact) => String(contact.vid ?? contact["canonical-vid"] ?? "")),
+  );
+  const existingContactsByHubspotId = new Map(
+    existingContacts.map((contact) => [String(contact.hubspot_contact_id), contact]),
+  );
 
   const records = hubspotContacts
     .map((contact, index) => {
       const properties = normalizeLegacyProperties(contact.properties ?? {});
+      const hubspotContactId = String(contact.vid ?? contact["canonical-vid"] ?? "");
+      const existingContact = existingContactsByHubspotId.get(hubspotContactId);
       const whatsappPhone = normalizePhone(properties);
       const safeWhatsappPhone = whatsappPhone || null;
       const formName = getLatestFormName(contact, properties);
@@ -275,17 +306,17 @@ export async function syncHubspotContacts() {
         first_name: properties.firstname?.trim() || null,
         email: properties.email?.trim() || null,
         whatsapp_phone: safeWhatsappPhone,
-        form_name: formName,
+        form_name: formName || existingContact?.form_name || null,
         day_trade_status: properties.day_trade_status?.trim() || null,
-        source: "HubSpot",
-        notes: "Importado do HubSpot",
-        current_stage_id: stageId,
-        current_list_id: listId,
-        owner_id: mappedOwner?.id ?? null,
-        hubspot_contact_id: String(contact.vid ?? contact["canonical-vid"] ?? ""),
+        source: existingContact?.source || "HubSpot",
+        notes: existingContact?.notes || "Importado do HubSpot",
+        current_stage_id: existingContact?.current_stage_id || stageId,
+        current_list_id: existingContact?.current_list_id || listId,
+        owner_id: existingContact?.owner_id || mappedOwner?.id || null,
+        hubspot_contact_id: hubspotContactId,
         hubspot_owner_id: properties.hubspot_owner_id || null,
         hubspot_last_synced_at: new Date().toISOString(),
-        entered_at: createdAt,
+        entered_at: existingContact?.entered_at || createdAt,
         last_interaction_at: latestInteractionAt,
       };
     })
