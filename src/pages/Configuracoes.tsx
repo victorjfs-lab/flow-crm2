@@ -61,7 +61,7 @@ export default function Configuracoes() {
   const tabs = [
     { id: "etapas" as const, label: "Etapas do Funil" },
     { id: "listas" as const, label: "Listas" },
-    { id: "responsaveis" as const, label: "Responsaveis" },
+    { id: "responsaveis" as const, label: "Responsáveis" },
   ];
 
   const reloadQueries = async () => {
@@ -88,7 +88,7 @@ export default function Configuracoes() {
     onError: (error) => {
       toast({
         title: "Erro ao salvar etapas",
-        description: error instanceof Error ? error.message : "Nao foi possivel salvar as etapas.",
+        description: error instanceof Error ? error.message : "Não foi possível salvar as etapas.",
         variant: "destructive",
       });
     },
@@ -106,7 +106,7 @@ export default function Configuracoes() {
     onError: (error) => {
       toast({
         title: "Erro ao salvar listas",
-        description: error instanceof Error ? error.message : "Nao foi possivel salvar as listas.",
+        description: error instanceof Error ? error.message : "Não foi possível salvar as listas.",
         variant: "destructive",
       });
     },
@@ -117,21 +117,20 @@ export default function Configuracoes() {
     onSuccess: async () => {
       await reloadQueries();
       toast({
-        title: "Responsaveis salvos",
+        title: "Responsáveis salvos",
         description: "Os nomes da equipe foram atualizados no CRM.",
       });
     },
     onError: (error) => {
       toast({
-        title: "Erro ao salvar responsaveis",
-        description: error instanceof Error ? error.message : "Nao foi possivel salvar os responsaveis.",
+        title: "Erro ao salvar responsáveis",
+        description: error instanceof Error ? error.message : "Não foi possível salvar os responsáveis.",
         variant: "destructive",
       });
     },
   });
 
-  const isSaving =
-    stageMutation.isPending || listMutation.isPending || userMutation.isPending;
+  const isSaving = stageMutation.isPending || listMutation.isPending || userMutation.isPending;
 
   const createListMutation = useMutation({
     mutationFn: createContactList,
@@ -146,7 +145,7 @@ export default function Configuracoes() {
     onError: (error) => {
       toast({
         title: "Erro ao criar lista",
-        description: error instanceof Error ? error.message : "Nao foi possivel criar a lista.",
+        description: error instanceof Error ? error.message : "Não foi possível criar a lista.",
         variant: "destructive",
       });
     },
@@ -157,14 +156,14 @@ export default function Configuracoes() {
     onSuccess: async () => {
       await reloadQueries();
       toast({
-        title: "Lista excluida",
-        description: "A lista foi removida das configuracoes ativas.",
+        title: "Lista excluída",
+        description: "A lista foi removida das configurações ativas.",
       });
     },
     onError: (error) => {
       toast({
         title: "Erro ao excluir lista",
-        description: error instanceof Error ? error.message : "Nao foi possivel excluir a lista.",
+        description: error instanceof Error ? error.message : "Não foi possível excluir a lista.",
         variant: "destructive",
       });
     },
@@ -176,14 +175,14 @@ export default function Configuracoes() {
       setNewUserName("");
       await reloadQueries();
       toast({
-        title: "Responsavel criado",
-        description: "O novo responsavel foi adicionado ao CRM.",
+        title: "Responsável criado",
+        description: "O novo responsável foi adicionado ao CRM.",
       });
     },
     onError: (error) => {
       toast({
-        title: "Erro ao criar responsavel",
-        description: error instanceof Error ? error.message : "Nao foi possivel criar o responsavel.",
+        title: "Erro ao criar responsável",
+        description: error instanceof Error ? error.message : "Não foi possível criar o responsável.",
         variant: "destructive",
       });
     },
@@ -194,14 +193,14 @@ export default function Configuracoes() {
     onSuccess: async () => {
       await reloadQueries();
       toast({
-        title: "Responsavel excluido",
-        description: "O responsavel foi removido das configuracoes ativas.",
+        title: "Responsável excluído",
+        description: "O responsável foi removido das configurações ativas.",
       });
     },
     onError: (error) => {
       toast({
-        title: "Erro ao excluir responsavel",
-        description: error instanceof Error ? error.message : "Nao foi possivel excluir o responsavel.",
+        title: "Erro ao excluir responsável",
+        description: error instanceof Error ? error.message : "Não foi possível excluir o responsável.",
         variant: "destructive",
       });
     },
@@ -216,14 +215,14 @@ export default function Configuracoes() {
       return "Gerencie suas listas de clientes.";
     }
 
-    return "Gerencie os responsaveis da equipe comercial.";
+    return "Gerencie os responsáveis da equipe comercial.";
   }, [activeTab]);
 
   const handleSave = async () => {
     if (!isSupabaseConfigured) {
       toast({
-        title: "Salvar indisponivel",
-        description: "Conecte o Supabase para salvar as configuracoes.",
+        title: "Salvar indisponível",
+        description: "Conecte o Supabase para salvar as configurações.",
         variant: "destructive",
       });
       return;
@@ -277,11 +276,11 @@ export default function Configuracoes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Configuracoes</h1>
+        <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
         <p className="text-muted-foreground">Personalize etapas, listas e equipe</p>
         {isSupabaseConfigured && (
           <p className="mt-1 text-xs text-muted-foreground">
-            {isLoading ? "Carregando configuracoes do Supabase..." : "Configuracoes conectadas ao Supabase."}
+            {isLoading ? "Carregando configurações do Supabase..." : "Configurações conectadas ao Supabase."}
           </p>
         )}
       </div>
@@ -310,7 +309,7 @@ export default function Configuracoes() {
           disabled={isSaving}
           className="mb-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSaving ? "Salvando..." : "Salvar alteracoes"}
+          {isSaving ? "Salvando..." : "Salvar alterações"}
         </button>
       </div>
 
@@ -325,7 +324,7 @@ export default function Configuracoes() {
         {activeTab === "etapas" && (
           <div className="space-y-3">
             <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-              As etapas do funil podem ser renomeadas aqui. Adicionar ou excluir etapas fica bloqueado por enquanto para nao quebrar o fluxo do CRM.
+              As etapas do funil podem ser renomeadas aqui. Adicionar ou excluir etapas fica bloqueado por enquanto para não quebrar o fluxo do CRM.
             </div>
             {stageForm.map((stage, index) => (
               <div key={stage.code} className="flex items-center gap-4 rounded-lg border border-border p-4">
@@ -401,7 +400,7 @@ export default function Configuracoes() {
               <input
                 value={newUserName}
                 onChange={(event) => setNewUserName(event.target.value)}
-                placeholder="Novo responsavel"
+                placeholder="Novo responsável"
                 className="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button

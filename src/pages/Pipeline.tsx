@@ -83,7 +83,7 @@ function PipelineCard({
         {client.dayTradeStatus && (
           <div>Day Trade: {client.dayTradeStatus}</div>
         )}
-        <div>Ultima interacao: {formatDateTime(client.ultimaInteracao)}</div>
+        <div>Última interação: {formatDateTime(client.ultimaInteracao)}</div>
       </div>
       <div className="grid grid-cols-2 gap-2">
         <button
@@ -205,7 +205,7 @@ export default function Pipeline() {
       setLocalClients(sourceClients);
       toast({
         title: "Erro ao mover card",
-        description: error instanceof Error ? error.message : "Nao foi possivel mover o contato.",
+        description: error instanceof Error ? error.message : "Não foi possível mover o contato.",
         variant: "destructive",
       });
     },
@@ -227,7 +227,7 @@ export default function Pipeline() {
     if (!isSupabaseConfigured) {
       toast({
         title: "Movido localmente",
-        description: "O card foi movido apenas na tela porque o Supabase nao esta configurado.",
+        description: "O card foi movido apenas na tela porque o Supabase não está configurado.",
       });
       return;
     }
@@ -290,14 +290,14 @@ export default function Pipeline() {
         </div>
         <div className="min-w-[220px]">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Formulario
+            Formulário
           </p>
           <select
             value={selectedForm}
             onChange={(event) => setSelectedForm(event.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
           >
-            <option value="todos">Todos os formularios</option>
+            <option value="todos">Todos os formulários</option>
             {formOptions.map((formOption) => (
               <option key={formOption} value={formOption}>
                 {formOption}
@@ -308,11 +308,11 @@ export default function Pipeline() {
         <div className="text-sm text-muted-foreground">
           {selectedList === "todas"
             ? selectedForm === "todos"
-              ? "Mostrando todas as listas e todos os formularios no kanban."
-              : `Kanban filtrado para o formulario: ${selectedForm}`
+              ? "Mostrando todas as listas e todos os formulários no kanban."
+              : `Kanban filtrado para o formulário: ${selectedForm}`
             : selectedForm === "todos"
               ? `Kanban filtrado para a lista: ${selectedList}`
-              : `Kanban filtrado para a lista ${selectedList} e formulario ${selectedForm}`}
+              : `Kanban filtrado para a lista ${selectedList} e formulário ${selectedForm}`}
         </div>
         <div className="w-full text-xs text-muted-foreground">
           Para mover um lead, clique e segure no card e arraste para outra etapa.

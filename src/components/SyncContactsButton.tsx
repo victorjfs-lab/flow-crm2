@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 export default function SyncContactsButton() {
   const queryClient = useQueryClient();
@@ -8,14 +9,29 @@ export default function SyncContactsButton() {
 
   const syncMutation = useMutation({
     mutationFn: async () => {
+      if (!supabase) {
+        throw new Error("Supabase não configurado para autenticar a sincronização.");
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("Sua sessão expirou. Entre novamente para sincronizar o HubSpot.");
+      }
+
       const response = await fetch("/api/sync/hubspot", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
 
       const payload = await response.json();
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.message || "Nao foi possivel atualizar os contatos.");
+        throw new Error(payload.message || "Não foi possível atualizar os contatos.");
       }
 
       return payload as { imported: number; found: number; message: string };
@@ -37,7 +53,8 @@ export default function SyncContactsButton() {
     onError: (error) => {
       toast({
         title: "Erro ao atualizar contatos",
-        description: error instanceof Error ? error.message : "Nao foi possivel sincronizar o HubSpot.",
+        description:
+          error instanceof Error ? error.message : "Não foi possível sincronizar o HubSpot.",
         variant: "destructive",
       });
     },

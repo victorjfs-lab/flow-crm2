@@ -5,7 +5,14 @@ import { clients, stages, listas, responsaveis } from "@/data/mockData";
 import { Client } from "@/data/types";
 import { cn } from "@/lib/utils";
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
-import { buildWhatsAppUrl, formatDate, formatDateTime, getPrimaryClientMessage, getStageColor, getStageLabel } from "@/data/crm";
+import {
+  buildWhatsAppUrl,
+  formatDate,
+  formatDateTime,
+  getPrimaryClientMessage,
+  getStageColor,
+  getStageLabel,
+} from "@/data/crm";
 import { useQuery } from "@tanstack/react-query";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
@@ -55,7 +62,9 @@ export default function Clientes() {
         <p className="text-muted-foreground">Gerencie todos os seus contatos</p>
         {isSupabaseConfigured && (
           <p className="mt-1 text-xs text-muted-foreground">
-            {isLoading ? "Carregando dados do Supabase..." : "Supabase conectado. Se nao houver registros, os mocks continuam como apoio."}
+            {isLoading
+              ? "Carregando dados do Supabase..."
+              : "Supabase conectado. Se não houver registros, os mocks continuam como apoio."}
           </p>
         )}
       </div>
@@ -70,24 +79,36 @@ export default function Clientes() {
             className="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-        <select value={filterEtapa} onChange={(event) => setFilterEtapa(event.target.value)} className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground">
-          <option value="">Todas Etapas</option>
+        <select
+          value={filterEtapa}
+          onChange={(event) => setFilterEtapa(event.target.value)}
+          className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+        >
+          <option value="">Todas as etapas</option>
           {sourceStages.map((stage) => (
             <option key={stage.id} value={stage.id}>
               {stage.label}
             </option>
           ))}
         </select>
-        <select value={filterLista} onChange={(event) => setFilterLista(event.target.value)} className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground">
-          <option value="">Todas Listas</option>
+        <select
+          value={filterLista}
+          onChange={(event) => setFilterLista(event.target.value)}
+          className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+        >
+          <option value="">Todas as listas</option>
           {sourceListas.map((lista) => (
             <option key={lista} value={lista}>
               {lista}
             </option>
           ))}
         </select>
-        <select value={filterResp} onChange={(event) => setFilterResp(event.target.value)} className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground">
-          <option value="">Todos Responsaveis</option>
+        <select
+          value={filterResp}
+          onChange={(event) => setFilterResp(event.target.value)}
+          className="rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground"
+        >
+          <option value="">Todos os responsáveis</option>
           {sourceResponsaveis.map((responsavel) => (
             <option key={responsavel} value={responsavel}>
               {responsavel}
@@ -96,7 +117,11 @@ export default function Clientes() {
         </select>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card overflow-hidden rounded-xl">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="glass-card overflow-hidden rounded-xl"
+      >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -106,9 +131,13 @@ export default function Clientes() {
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Lista</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Etapa</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Entrada</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Ultima Interacao</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Responsavel</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Acao</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">
+                  Última interação
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">
+                  Responsável
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -117,25 +146,47 @@ export default function Clientes() {
                 const canOpenWhatsapp = Boolean(client.telefone && msg);
 
                 return (
-                  <tr key={client.id} className="border-b border-border transition-colors hover:bg-muted/30">
+                  <tr
+                    key={client.id}
+                    className="border-b border-border transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-4 py-3 font-medium text-foreground">{client.nome}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{client.telefone || "Sem telefone"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {client.telefone || "Sem telefone"}
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">{client.lista}</td>
                     <td className="px-4 py-3">
-                      <span className={cn("stage-badge text-accent-foreground", getStageColor(client.etapa))}>
+                      <span
+                        className={cn(
+                          "stage-badge text-accent-foreground",
+                          getStageColor(client.etapa),
+                        )}
+                      >
                         {getStageLabel(client.etapa)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{formatDate(client.dataEntrada)}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{formatDateTime(client.ultimaInteracao)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {formatDate(client.dataEntrada)}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {formatDateTime(client.ultimaInteracao)}
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">{client.responsavel}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => setSelectedClient(client)} className="rounded-lg border border-border p-1.5 text-foreground transition-colors hover:bg-muted">
+                        <button
+                          onClick={() => setSelectedClient(client)}
+                          className="rounded-lg border border-border p-1.5 text-foreground transition-colors hover:bg-muted"
+                        >
                           <Eye className="h-4 w-4" />
                         </button>
                         {canOpenWhatsapp && (
-                          <a href={buildWhatsAppUrl(client.telefone, msg)} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-whatsapp p-1.5 text-whatsapp-foreground transition-opacity hover:opacity-90">
+                          <a
+                            href={buildWhatsAppUrl(client.telefone, msg)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-lg bg-whatsapp p-1.5 text-whatsapp-foreground transition-opacity hover:opacity-90"
+                          >
                             <MessageCircle className="h-4 w-4" />
                           </a>
                         )}
@@ -147,7 +198,9 @@ export default function Clientes() {
             </tbody>
           </table>
         </div>
-        {filtered.length === 0 && <p className="py-12 text-center text-muted-foreground">Nenhum cliente encontrado</p>}
+        {filtered.length === 0 && (
+          <p className="py-12 text-center text-muted-foreground">Nenhum cliente encontrado</p>
+        )}
       </motion.div>
 
       <ClientDetailDrawer

@@ -4,7 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
 import { clients } from "@/data/mockData";
 import { Client, MessageTemplate } from "@/data/types";
-import { buildWhatsAppUrl, formatDateTime, getPrimaryClientMessage, getStageLabel } from "@/data/crm";
+import {
+  buildWhatsAppUrl,
+  formatDateTime,
+  getPrimaryClientMessage,
+  getStageLabel,
+} from "@/data/crm";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
 
@@ -46,7 +51,9 @@ export default function CalendarioClientes() {
         const reminderDate = client.lembreteContato ? new Date(client.lembreteContato) : null;
         return reminderDate ? reminderDate < today : false;
       }),
-      hoje: scheduledClients.filter((client) => isDateBetween(client.lembreteContato, today, tomorrow)),
+      hoje: scheduledClients.filter((client) =>
+        isDateBetween(client.lembreteContato, today, tomorrow),
+      ),
       amanha: scheduledClients.filter((client) =>
         isDateBetween(client.lembreteContato, tomorrow, dayAfterTomorrow),
       ),
@@ -60,7 +67,7 @@ export default function CalendarioClientes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Calendario Clientes</h1>
+        <h1 className="text-2xl font-bold text-foreground">Calendário Clientes</h1>
         <p className="text-muted-foreground">
           Veja quais clientes precisam ser chamados em cada data.
         </p>
@@ -88,7 +95,7 @@ export default function CalendarioClientes() {
         <div className="space-y-6">
           <ReminderSection
             title="Atrasados"
-            description="Clientes cujo lembrete ja venceu e precisam de atencao imediata."
+            description="Clientes cujo lembrete já venceu e precisam de atenção imediata."
             clients={groupedClients.atrasados}
             templates={sourceTemplates}
             onOpenClient={setSelectedClient}
@@ -103,14 +110,14 @@ export default function CalendarioClientes() {
             highlightTone="warning"
           />
           <ReminderSection
-            title="Amanha"
-            description="Clientes programados para o proximo dia."
+            title="Amanhã"
+            description="Clientes programados para o próximo dia."
             clients={groupedClients.amanha}
             templates={sourceTemplates}
             onOpenClient={setSelectedClient}
           />
           <ReminderSection
-            title="Proximos dias"
+            title="Próximos dias"
             description="Agenda futura para organizar seus retornos."
             clients={groupedClients.proximosDias}
             templates={sourceTemplates}
@@ -182,9 +189,9 @@ function ReminderSection({
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Cliente</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Lembrete</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Formulario</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Formulário</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Etapa</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Acao</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -193,13 +200,18 @@ function ReminderSection({
                 const canOpenWhatsapp = Boolean(client.telefone && msg);
 
                 return (
-                  <tr key={client.id} className="border-b border-border transition-colors hover:bg-muted/30">
+                  <tr
+                    key={client.id}
+                    className="border-b border-border transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-4 py-3 font-medium text-foreground">{client.nome}</td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {formatDateTime(client.lembreteContato ?? "")}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{client.formulario}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{getStageLabel(client.etapa)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {getStageLabel(client.etapa)}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button

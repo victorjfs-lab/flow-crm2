@@ -1,14 +1,44 @@
 import { motion } from "framer-motion";
-import { Users, UserPlus, Clock, Send, TrendingUp, Phone, MessageCircle, ArrowRight, RefreshCw, GraduationCap } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  Clock,
+  Send,
+  TrendingUp,
+  Phone,
+  MessageCircle,
+  ArrowRight,
+  RefreshCw,
+  GraduationCap,
+} from "lucide-react";
 import { clients, stages } from "@/data/mockData";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { formatDate, getClientMetrics, getFormConversionSummary, getNextActionLabel, getRecentActivities, getStageDistribution } from "@/data/crm";
+import {
+  formatDate,
+  getClientMetrics,
+  getFormConversionSummary,
+  getNextActionLabel,
+  getRecentActivities,
+  getStageDistribution,
+} from "@/data/crm";
 import { useQuery } from "@tanstack/react-query";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
 
-function MetricCard({ title, value, icon: Icon, color, delay }: { title: string; value: number | string; icon: any; color: string; delay: number }) {
+function MetricCard({
+  title,
+  value,
+  icon: Icon,
+  color,
+  delay,
+}: {
+  title: string;
+  value: number | string;
+  icon: any;
+  color: string;
+  delay: number;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -60,7 +90,7 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground">Visao geral do seu funil comercial</p>
+        <p className="text-muted-foreground">Visão geral do seu funil comercial</p>
         {isSupabaseConfigured && (
           <p className="mt-1 text-xs text-muted-foreground">
             {isLoading ? "Carregando dados do Supabase..." : "Dashboard conectado ao Supabase."}
@@ -74,13 +104,18 @@ export default function Dashboard() {
         <MetricCard title="Aguardando Contato" value={metrics.aguardandoContato} icon={Clock} color="bg-stage-espera" delay={0.1} />
         <MetricCard title="Em Espera" value={metrics.emEspera} icon={TrendingUp} color="bg-stage-acompanhamento" delay={0.15} />
         <MetricCard title="Propostas em Aberto" value={metrics.propostasAbertas} icon={Send} color="bg-accent" delay={0.2} />
-        <MetricCard title="Vendas do Mes" value={metrics.vendasMesFormatadas} icon={TrendingUp} color="bg-stage-fechado" delay={0.25} />
+        <MetricCard title="Vendas do Mês" value={metrics.vendasMesFormatadas} icon={TrendingUp} color="bg-stage-fechado" delay={0.25} />
         <MetricCard title="Smart Vendidos" value={metrics.smartVendidoMes} icon={RefreshCw} color="bg-stage-proposta" delay={0.3} />
         <MetricCard title="Mentorias Vendidas" value={metrics.mentoriaVendidaMes} icon={GraduationCap} color="bg-stage-contato" delay={0.35} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass-card rounded-xl p-6 lg:col-span-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="glass-card rounded-xl p-6 lg:col-span-2"
+        >
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-foreground">Clientes por Etapa</h2>
             <Link to="/pipeline" className="text-sm font-medium text-primary hover:underline">
@@ -106,7 +141,12 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card rounded-xl p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="glass-card rounded-xl p-6"
+        >
           <h2 className="mb-4 text-lg font-semibold text-foreground">Atividades Recentes</h2>
           <div className="space-y-4">
             {recentActivities.map((activity) => (
@@ -128,25 +168,38 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card rounded-xl p-6">
-          <h2 className="mb-2 text-lg font-semibold text-foreground">Renovacoes Pendentes</h2>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="glass-card rounded-xl p-6"
+        >
+          <h2 className="mb-2 text-lg font-semibold text-foreground">Renovações Pendentes</h2>
           <p className="text-4xl font-bold text-foreground">{metrics.renovacoesPendentes}</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Clientes Smart que ja entraram na janela de renovacao.
+            Clientes Smart que já entraram na janela de renovação.
           </p>
           <Link to="/renovacoes" className="mt-4 inline-flex text-sm font-medium text-primary hover:underline">
-            Ver renovacoes
+            Ver renovações
           </Link>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="glass-card rounded-xl p-6 lg:col-span-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+          className="glass-card rounded-xl p-6 lg:col-span-2"
+        >
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Conversao por Formulario</h2>
-            <span className="text-xs text-muted-foreground">Top 6 formularios</span>
+            <h2 className="text-lg font-semibold text-foreground">Conversão por Formulário</h2>
+            <span className="text-xs text-muted-foreground">Top 6 formulários</span>
           </div>
           <div className="space-y-3">
             {formConversion.map((item) => (
-              <div key={item.formulario} className="grid grid-cols-[minmax(0,1fr)_70px_70px_70px] items-center gap-3 rounded-lg border border-border bg-card p-3">
+              <div
+                key={item.formulario}
+                className="grid grid-cols-[minmax(0,1fr)_70px_70px_70px] items-center gap-3 rounded-lg border border-border bg-card p-3"
+              >
                 <p className="truncate text-sm font-medium text-foreground">{item.formulario}</p>
                 <p className="text-right text-xs text-muted-foreground">{item.leads} leads</p>
                 <p className="text-right text-xs text-muted-foreground">{item.vendas} vendas</p>
@@ -157,21 +210,32 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass-card rounded-xl p-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Proximas Acoes</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="glass-card rounded-xl p-6"
+      >
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Próximas Ações</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sourceClients
             .filter((client) => client.etapa === "novo" || client.etapa === "contato")
             .slice(0, 6)
             .map((client) => (
-              <div key={client.id} className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+              <div
+                key={client.id}
+                className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+              >
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-foreground">{client.nome}</p>
                   <p className="text-xs text-muted-foreground">
                     {getNextActionLabel(client)} | {client.responsavel}
                   </p>
                 </div>
-                <Link to={`/clientes/${client.id}`} className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90">
+                <Link
+                  to={`/clientes/${client.id}`}
+                  className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+                >
                   Abrir
                 </Link>
               </div>

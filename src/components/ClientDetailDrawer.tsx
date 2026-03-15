@@ -1,11 +1,41 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X, MessageCircle, Phone, Mail, Calendar, User, Tag, FileText, ArrowRight, Pencil, Save, ImagePlus, Trash2 } from "lucide-react";
+import {
+  X,
+  MessageCircle,
+  Phone,
+  Mail,
+  Calendar,
+  User,
+  Tag,
+  FileText,
+  ArrowRight,
+  Pencil,
+  Save,
+  ImagePlus,
+  Trash2,
+} from "lucide-react";
 import { Client, ClientAttachment, MessageTemplate, StageId } from "@/data/types";
-import { buildWhatsAppUrl, formatCurrency, formatDate, formatDateTime, FUNNEL_STAGE_ORDER, getClientTemplates, getPrimaryClientMessage, getStageColor, getStageLabel, replaceVariables } from "@/data/crm";
+import {
+  buildWhatsAppUrl,
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  FUNNEL_STAGE_ORDER,
+  getClientTemplates,
+  getPrimaryClientMessage,
+  getStageColor,
+  getStageLabel,
+  replaceVariables,
+} from "@/data/crm";
 import { cn } from "@/lib/utils";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { archiveContact, listContactAttachments, updateContactDetails, uploadContactAttachment } from "@/lib/crm-repository";
+import {
+  archiveContact,
+  listContactAttachments,
+  updateContactDetails,
+  uploadContactAttachment,
+} from "@/lib/crm-repository";
 import { CrmSnapshot } from "@/lib/crm-loader";
 import { useToast } from "@/hooks/use-toast";
 
@@ -104,7 +134,7 @@ export default function ClientDetailDrawer({
       setSavedPreview({
         email: formData.email,
         telefone: formData.telefone,
-        formulario: formData.formulario || "Sem formulario",
+        formulario: formData.formulario || "Sem formulário",
         origem: formData.origem,
         observacoes: formData.observacoes,
         etapa: formData.etapa,
@@ -127,13 +157,13 @@ export default function ClientDetailDrawer({
       ]);
       toast({
         title: "Cliente atualizado",
-        description: "As informacoes e observacoes foram salvas no CRM.",
+        description: "As informações e observações foram salvas no CRM.",
       });
     },
     onError: (error) => {
       toast({
         title: "Erro ao salvar",
-        description: error instanceof Error ? error.message : "Nao foi possivel salvar as alteracoes.",
+        description: error instanceof Error ? error.message : "Não foi possível salvar as alterações.",
         variant: "destructive",
       });
     },
@@ -157,13 +187,13 @@ export default function ClientDetailDrawer({
       ]);
       toast({
         title: "Print enviado",
-        description: "A imagem foi salva no historico desse cliente.",
+        description: "A imagem foi salva no histórico desse cliente.",
       });
     },
     onError: (error) => {
       toast({
         title: "Erro ao enviar print",
-        description: error instanceof Error ? error.message : "Nao foi possivel enviar a imagem.",
+        description: error instanceof Error ? error.message : "Não foi possível enviar a imagem.",
         variant: "destructive",
       });
     },
@@ -197,15 +227,15 @@ export default function ClientDetailDrawer({
         queryClient.invalidateQueries({ queryKey: ["crm-calendario-page"] }),
       ]);
       toast({
-        title: "Cliente excluido",
-        description: "O cliente foi removido da base visivel do CRM.",
+        title: "Cliente excluído",
+        description: "O cliente foi removido da base visível do CRM.",
       });
       onClose();
     },
     onError: (error) => {
       toast({
         title: "Erro ao excluir",
-        description: error instanceof Error ? error.message : "Nao foi possivel excluir o cliente.",
+        description: error instanceof Error ? error.message : "Não foi possível excluir o cliente.",
         variant: "destructive",
       });
     },
@@ -214,8 +244,8 @@ export default function ClientDetailDrawer({
   const handleSave = async () => {
     if (!isSupabaseConfigured) {
       toast({
-        title: "Edicao indisponivel",
-        description: "Conecte o Supabase para salvar alteracoes reais.",
+        title: "Edição indisponível",
+        description: "Conecte o Supabase para salvar alterações reais.",
         variant: "destructive",
       });
       return;
@@ -228,9 +258,7 @@ export default function ClientDetailDrawer({
       formName: formData.formulario,
       source: formData.origem,
       notes: formData.observacoes,
-      nextActionAt: formData.lembreteContato
-        ? `${formData.lembreteContato}T09:00:00.000Z`
-        : "",
+      nextActionAt: formData.lembreteContato ? `${formData.lembreteContato}T09:00:00.000Z` : "",
       saleDate: formData.dataVenda ? `${formData.dataVenda}T12:00:00.000Z` : "",
       soldProduct:
         formData.produtoVendido === "smart" || formData.produtoVendido === "mentoria"
@@ -266,7 +294,7 @@ export default function ClientDetailDrawer({
 
     if (!isSupabaseConfigured) {
       toast({
-        title: "Upload indisponivel",
+        title: "Upload indisponível",
         description: "Conecte o Supabase para salvar prints do cliente.",
         variant: "destructive",
       });
@@ -286,16 +314,14 @@ export default function ClientDetailDrawer({
 
     if (!isSupabaseConfigured) {
       toast({
-        title: "Exclusao indisponivel",
+        title: "Exclusão indisponível",
         description: "Conecte o Supabase para excluir clientes da base.",
         variant: "destructive",
       });
       return;
     }
 
-    const confirmed = window.confirm(
-      `Deseja realmente excluir ${client.nome} da base do CRM?`,
-    );
+    const confirmed = window.confirm(`Deseja realmente excluir ${client.nome} da base do CRM?`);
 
     if (!confirmed) {
       return;
@@ -323,7 +349,7 @@ export default function ClientDetailDrawer({
           <div>
             <h2 className="text-lg font-bold text-foreground">{client.nome}</h2>
             <p className="text-xs text-muted-foreground">
-              {isEditing ? "Editando informacoes do cliente" : "Detalhes do cliente"}
+              {isEditing ? "Editando informações do cliente" : "Detalhes do cliente"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -365,7 +391,7 @@ export default function ClientDetailDrawer({
               <InfoItem icon={Phone} label="Telefone" value={displayClient.telefone || "Sem telefone"} />
               <InfoItem icon={Mail} label="Email" value={displayClient.email} />
               <InfoItem icon={Calendar} label="Entrada" value={formatDate(displayClient.dataEntrada)} />
-              <InfoItem icon={User} label="Responsavel" value={displayClient.responsavel} />
+              <InfoItem icon={User} label="Responsável" value={displayClient.responsavel} />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -382,10 +408,10 @@ export default function ClientDetailDrawer({
                 placeholder="Digite o email"
               />
               <EditableField
-                label="Formulario"
+                label="Formulário"
                 value={formData.formulario}
                 onChange={(value) => setFormData((current) => ({ ...current, formulario: value }))}
-                placeholder="Digite o formulario de origem"
+                placeholder="Digite o formulário de origem"
               />
               <EditableField
                 label="Origem"
@@ -394,20 +420,21 @@ export default function ClientDetailDrawer({
                 placeholder="Digite a origem do lead"
               />
               <EditableTextarea
-                label="Observacoes"
+                label="Observações"
                 value={formData.observacoes}
                 onChange={(value) => setFormData((current) => ({ ...current, observacoes: value }))}
-                placeholder="Digite observacoes sobre esse cliente"
+                placeholder="Digite observações sobre esse cliente"
               />
               <EditableDateField
                 label="Lembrete para chamar o cliente"
                 value={formData.lembreteContato}
-                onChange={(value) =>
-                  setFormData((current) => ({ ...current, lembreteContato: value }))
-                }
+                onChange={(value) => setFormData((current) => ({ ...current, lembreteContato: value }))}
                 fieldRef={scheduleFieldRef}
               />
-              <div ref={saleFieldRef} className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-card p-4 md:grid-cols-3">
+              <div
+                ref={saleFieldRef}
+                className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-card p-4 md:grid-cols-3"
+              >
                 <EditableDateField
                   label="Data da venda"
                   value={formData.dataVenda}
@@ -433,9 +460,7 @@ export default function ClientDetailDrawer({
               <EditableSelect
                 label="Parte do funil"
                 value={formData.etapa}
-                onChange={(value) =>
-                  setFormData((current) => ({ ...current, etapa: value as StageId }))
-                }
+                onChange={(value) => setFormData((current) => ({ ...current, etapa: value as StageId }))}
                 options={editableStageOptions.map((stageId) => ({
                   value: stageId,
                   label: getStageLabel(stageId),
@@ -443,7 +468,7 @@ export default function ClientDetailDrawer({
               />
               <div className="grid grid-cols-2 gap-4 rounded-lg bg-muted/50 p-4">
                 <InfoItem icon={Calendar} label="Entrada" value={formatDate(displayClient.dataEntrada)} />
-                <InfoItem icon={User} label="Responsavel" value={displayClient.responsavel} />
+                <InfoItem icon={User} label="Responsável" value={displayClient.responsavel} />
               </div>
             </div>
           )}
@@ -463,23 +488,21 @@ export default function ClientDetailDrawer({
 
           {!isEditing && displayClient.observacoes && (
             <div className="rounded-lg bg-muted p-4 text-sm text-foreground">
-              <p className="mb-1 text-xs font-semibold text-muted-foreground">Observacoes</p>
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">Observações</p>
               {displayClient.observacoes}
             </div>
           )}
 
           {!isEditing && displayClient.dayTradeStatus && (
             <div className="rounded-lg border border-border bg-card p-4 text-sm text-foreground">
-              <p className="mb-1 text-xs font-semibold text-muted-foreground">Ja opera Day Trade</p>
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">Já opera Day Trade</p>
               {displayClient.dayTradeStatus}
             </div>
           )}
 
           {!isEditing && displayClient.lembreteContato && (
             <div className="rounded-lg border border-border bg-card p-4 text-sm text-foreground">
-              <p className="mb-1 text-xs font-semibold text-muted-foreground">
-                Lembrete de contato
-              </p>
+              <p className="mb-1 text-xs font-semibold text-muted-foreground">Lembrete de contato</p>
               {formatDateTime(displayClient.lembreteContato)}
             </div>
           )}
@@ -487,7 +510,7 @@ export default function ClientDetailDrawer({
           {!isEditing && (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <div className="rounded-lg border border-border bg-card p-4 text-sm text-foreground">
-                <p className="mb-1 text-xs font-semibold text-muted-foreground">Ultima interacao</p>
+                <p className="mb-1 text-xs font-semibold text-muted-foreground">Última interação</p>
                 {formatDateTime(displayClient.ultimaInteracao)}
               </div>
               <div className="rounded-lg border border-border bg-card p-4 text-sm text-foreground">
@@ -511,7 +534,13 @@ export default function ClientDetailDrawer({
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Produto</p>
-                  <p>{displayClient.produtoVendido === "smart" ? "Smart" : displayClient.produtoVendido === "mentoria" ? "Mentoria" : "-"}</p>
+                  <p>
+                    {displayClient.produtoVendido === "smart"
+                      ? "Smart"
+                      : displayClient.produtoVendido === "mentoria"
+                        ? "Mentoria"
+                        : "-"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Valor</p>
@@ -581,13 +610,13 @@ export default function ClientDetailDrawer({
                   Enviar no WhatsApp
                 </a>
               ) : (
-                <p className="text-xs text-muted-foreground">Esse contato ainda nao tem telefone para abrir WhatsApp.</p>
+                <p className="text-xs text-muted-foreground">Esse contato ainda não tem telefone para abrir WhatsApp.</p>
               )}
             </div>
           )}
 
           <div>
-            <h3 className="mb-3 text-sm font-semibold text-foreground">Historico</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">Histórico</h3>
             {displayClient.timeline.length === 0 && <p className="text-sm text-muted-foreground">Nenhum registro ainda</p>}
             <div className="space-y-3">
               {displayClient.timeline.map((event) => {
@@ -628,7 +657,7 @@ export default function ClientDetailDrawer({
               <div>
                 <p className="text-sm font-semibold text-foreground">Excluir cliente da base</p>
                 <p className="text-xs text-muted-foreground">
-                  O cliente some do CRM, mas a acao fica registrada no historico.
+                  O cliente some do CRM, mas a ação fica registrada no histórico.
                 </p>
               </div>
               <button

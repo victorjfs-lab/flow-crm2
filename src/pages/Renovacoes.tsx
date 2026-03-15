@@ -4,7 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
 import { clients } from "@/data/mockData";
 import { Client, MessageTemplate } from "@/data/types";
-import { buildWhatsAppUrl, formatCurrency, formatDate, formatDateTime, getPrimaryClientMessage, getRenewalCandidates } from "@/data/crm";
+import {
+  buildWhatsAppUrl,
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  getPrimaryClientMessage,
+  getRenewalCandidates,
+} from "@/data/crm";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
 
@@ -23,13 +30,15 @@ export default function Renovacoes() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Renovacoes</h1>
+        <h1 className="text-2xl font-bold text-foreground">Renovações</h1>
         <p className="text-muted-foreground">
-          Clientes Smart com renovacao chegando 1 semana antes do fim do ciclo.
+          Clientes Smart com renovação chegando 1 semana antes do fim do ciclo.
         </p>
         {isSupabaseConfigured && (
           <p className="mt-1 text-xs text-muted-foreground">
-            {isLoading ? "Carregando renovacoes do Supabase..." : "Renovacoes conectadas ao Supabase."}
+            {isLoading
+              ? "Carregando renovações do Supabase..."
+              : "Renovações conectadas ao Supabase."}
           </p>
         )}
       </div>
@@ -37,14 +46,14 @@ export default function Renovacoes() {
       <div className="glass-card rounded-xl p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <RefreshCw className="h-4 w-4" />
-          {renewalEntries.length} clientes prontos para contato de renovacao
+          {renewalEntries.length} clientes prontos para contato de renovação
         </div>
       </div>
 
       {renewalEntries.length === 0 ? (
         <div className="glass-card overflow-hidden rounded-xl">
           <p className="py-16 text-center text-muted-foreground">
-            Nenhuma renovacao pendente por enquanto.
+            Nenhuma renovação pendente por enquanto.
           </p>
         </div>
       ) : (
@@ -55,27 +64,39 @@ export default function Renovacoes() {
                 <tr className="border-b border-border bg-muted/50">
                   <th className="px-4 py-3 text-left font-semibold text-foreground">Cliente</th>
                   <th className="px-4 py-3 text-left font-semibold text-foreground">Produto</th>
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Data da venda</th>
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Fim do ciclo</th>
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Lembrar em</th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">
+                    Data da venda
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">
+                    Fim do ciclo
+                  </th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">
+                    Lembrar em
+                  </th>
                   <th className="px-4 py-3 text-left font-semibold text-foreground">Valor</th>
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Acao</th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">Ação</th>
                 </tr>
               </thead>
               <tbody>
                 {renewalEntries.map(({ client, reminderDate, cycleEndDate }) => {
                   const msg = getPrimaryClientMessage(client, sourceTemplates);
                   const canOpenWhatsapp = Boolean(client.telefone && msg);
-                  const isDueToday = new Date(reminderDate).toDateString() === new Date().toDateString();
+                  const isDueToday =
+                    new Date(reminderDate).toDateString() === new Date().toDateString();
 
                   return (
-                    <tr key={client.id} className="border-b border-border transition-colors hover:bg-muted/30">
+                    <tr
+                      key={client.id}
+                      className="border-b border-border transition-colors hover:bg-muted/30"
+                    >
                       <td className="px-4 py-3 font-medium text-foreground">{client.nome}</td>
                       <td className="px-4 py-3 text-muted-foreground">Smart</td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {client.dataVenda ? formatDate(client.dataVenda) : "-"}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{formatDate(cycleEndDate)}</td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {formatDate(cycleEndDate)}
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         <div className="flex flex-col gap-1">
                           <span>{formatDateTime(reminderDate)}</span>

@@ -1,27 +1,95 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Kanban, Users, MessageSquare, Settings, Menu, X, Zap, CalendarDays, RefreshCw } from "lucide-react";
+import {
+  CalendarDays,
+  Kanban,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  MessageSquare,
+  RefreshCw,
+  Settings,
+  Users,
+  X,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import SyncContactsButton from "@/components/SyncContactsButton";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/pipeline", label: "Pipeline", icon: Kanban },
   { to: "/clientes", label: "Clientes", icon: Users },
-  { to: "/calendario-clientes", label: "Calendario Clientes", icon: CalendarDays },
-  { to: "/renovacoes", label: "Renovacoes", icon: RefreshCw },
+  { to: "/calendario-clientes", label: "Calendário Clientes", icon: CalendarDays },
+  { to: "/renovacoes", label: "Renovações", icon: RefreshCw },
   { to: "/mensagens", label: "Mensagens", icon: MessageSquare },
-  { to: "/configuracoes", label: "Configuracoes", icon: Settings },
+  { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { toast } = useToast();
+  const { session } = useAuth();
+
+  const userEmail = session?.user.email || "usuario@crm.local";
+  const userName = useMemo(() => {
+    const metadataName = session?.user.user_metadata?.full_name;
+
+    if (typeof metadataName === "string" && metadataName.trim()) {
+      return metadataName.trim();
+    }
+
+    return userEmail.split("@")[0] || "Usuário";
+  }, [session, userEmail]);
+
+  const userInitials = useMemo(() => {
+    return (
+      userName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join("") || "FC"
+    );
+  }, [userName]);
+
+  async function handleSignOut() {
+    if (!supabase) {
+      return;
+    }
+
+    setIsSigningOut(true);
+    const { error } = await supabase.auth.signOut();
+    setIsSigningOut(false);
+
+    if (error) {
+      toast({
+        title: "Não foi possível sair",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Sessão encerrada",
+      description: "O CRM foi bloqueado com segurança.",
+    });
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
       )}
 
       <aside
@@ -65,12 +133,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="border-t border-sidebar-border p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent text-sm font-semibold text-sidebar-accent-foreground">
-              AS
+              {userInitials}
             </div>
-            <div>
-              <p className="text-sm font-medium text-sidebar-primary">Ana Silva</p>
-              <p className="text-xs text-sidebar-muted">Gerente Comercial</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-sidebar-primary">{userName}</p>
+              <p className="truncate text-xs text-sidebar-muted">{userEmail}</p>
             </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              onClick={() => void handleSignOut()}
+              disabled={isSigningOut}
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </aside>
