@@ -81,9 +81,6 @@ function PipelineCard({
 
       <div className="mb-3 space-y-2 text-xs text-muted-foreground">
         <div className="rounded-lg border border-border bg-muted/40 p-3">
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Observações
-          </p>
           <p className="line-clamp-3 text-xs leading-relaxed text-foreground/85">
             {client.observacoes?.trim() || "Sem observações"}
           </p>
