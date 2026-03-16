@@ -356,6 +356,99 @@ export async function updateContactDetails({
   return data;
 }
 
+export async function createManualContact({
+  fullName,
+  whatsappPhone,
+  email,
+  formName,
+  source,
+  notes,
+  stageCode = "espera",
+  listName,
+  ownerName,
+}: {
+  fullName: string;
+  whatsappPhone?: string;
+  email?: string;
+  formName?: string;
+  source?: string;
+  notes?: string;
+  stageCode?: string;
+  listName?: string;
+  ownerName?: string;
+}) {
+  if (!supabase) {
+    throw new Error("Supabase nao configurado.");
+  }
+
+  const stage = await getStageByCode(stageCode);
+  let listId: string | null = null;
+  let ownerId: string | null = null;
+
+  if (listName?.trim()) {
+    const { data: listRow, error: listError } = await supabase
+      .from("contact_lists")
+      .select("id")
+      .eq("name", listName.trim())
+      .maybeSingle();
+
+    if (listError) throw listError;
+    listId = listRow?.id ?? null;
+  }
+
+  if (ownerName?.trim()) {
+    const { data: ownerRow, error: ownerError } = await supabase
+      .from("crm_users")
+      .select("id")
+      .eq("full_name", ownerName.trim())
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (ownerError) throw ownerError;
+    ownerId = ownerRow?.id ?? null;
+  }
+
+  const now = new Date().toISOString();
+  const safeFullName = fullName.trim();
+
+  if (!safeFullName) {
+    throw new Error("Informe o nome do contato.");
+  }
+
+  const { data, error } = await supabase
+    .from("contacts")
+    .insert({
+      full_name: safeFullName,
+      first_name: safeFullName.split(/\s+/)[0] || null,
+      email: email?.trim() || null,
+      whatsapp_phone: whatsappPhone?.trim() || null,
+      form_name: formName?.trim() || null,
+      source: source?.trim() || "Manual",
+      notes: notes?.trim() || null,
+      current_stage_id: stage.id,
+      current_list_id: listId,
+      owner_id: ownerId,
+      entered_at: now,
+      last_interaction_at: now,
+    })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  const { error: interactionError } = await supabase
+    .from("contact_interactions")
+    .insert({
+      contact_id: data.id,
+      interaction_type: "note",
+      description: "Contato cadastrado manualmente no CRM",
+    });
+
+  if (interactionError) throw interactionError;
+
+  return data;
+}
+
 export async function createWhatsappTemplate({
   name,
   scopeType,

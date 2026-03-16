@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarPlus2, GripVertical, MessageCircle, Phone, User, Wallet } from "lucide-react";
-import { clients, stages, messageTemplates } from "@/data/mockData";
-import { Client, MessageTemplate } from "@/data/types";
-import { cn } from "@/lib/utils";
+import { CalendarPlus2, GripVertical, MessageCircle, Wallet } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
 import { buildWhatsAppUrl, formatDateTime, getPrimaryClientMessage, getPriorityMeta } from "@/data/crm";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { isSupabaseConfigured } from "@/lib/supabase";
+import { clients, messageTemplates, stages } from "@/data/mockData";
+import { Client, MessageTemplate } from "@/data/types";
+import { useToast } from "@/hooks/use-toast";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
 import { moveContactToStage } from "@/lib/crm-repository";
-import { useToast } from "@/hooks/use-toast";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_LIST_FILTER = "todas";
 
@@ -29,8 +30,8 @@ function PipelineCard({
   onSchedule: (client: Client) => void;
   onMarkSale: (client: Client) => void;
 }) {
-  const msg = getPrimaryClientMessage(client, templates);
-  const canOpenWhatsapp = Boolean(client.telefone && msg);
+  const message = getPrimaryClientMessage(client, templates);
+  const canOpenWhatsapp = Boolean(client.telefone && message);
   const priority = getPriorityMeta(client);
 
   return (
@@ -61,30 +62,35 @@ function PipelineCard({
           Arraste
         </div>
       </div>
+
       <div className="mb-3">
         <div className="flex flex-wrap gap-2">
           <span className="inline-flex rounded-full border border-border bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
             {client.formulario}
           </span>
-          <span className={cn("inline-flex rounded-full border px-2 py-1 text-[11px] font-medium", priority.tone)}>
+          <span
+            className={cn(
+              "inline-flex rounded-full border px-2 py-1 text-[11px] font-medium",
+              priority.tone,
+            )}
+          >
             {priority.label}
           </span>
         </div>
       </div>
-      <div className="mb-3 space-y-1 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1">
-          <Phone className="h-3 w-3" />
-          {client.telefone || "Sem telefone"}
+
+      <div className="mb-3 space-y-2 text-xs text-muted-foreground">
+        <div className="rounded-lg border border-border bg-muted/40 p-3">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            Observações
+          </p>
+          <p className="line-clamp-3 text-xs leading-relaxed text-foreground/85">
+            {client.observacoes?.trim() || "Sem observações"}
+          </p>
         </div>
-        <div className="flex items-center gap-1">
-          <User className="h-3 w-3" />
-          {client.responsavel}
-        </div>
-        {client.dayTradeStatus && (
-          <div>Day Trade: {client.dayTradeStatus}</div>
-        )}
         <div>Última interação: {formatDateTime(client.ultimaInteracao)}</div>
       </div>
+
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => onOpen(client)}
@@ -108,7 +114,7 @@ function PipelineCard({
         </button>
         {canOpenWhatsapp && (
           <a
-            href={buildWhatsAppUrl(client.telefone, msg)}
+            href={buildWhatsAppUrl(client.telefone, message)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-1 rounded-lg bg-whatsapp px-3 py-1.5 text-xs font-medium text-whatsapp-foreground transition-opacity hover:opacity-90"
@@ -129,11 +135,14 @@ export default function Pipeline() {
   const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [drawerStartsInEditMode, setDrawerStartsInEditMode] = useState(false);
-  const [drawerInitialSection, setDrawerInitialSection] = useState<"schedule" | "sale" | null>(null);
+  const [drawerInitialSection, setDrawerInitialSection] = useState<
+    "schedule" | "sale" | null
+  >(null);
   const [selectedForm, setSelectedForm] = useState("todos");
   const [selectedList, setSelectedList] = useState(DEFAULT_LIST_FILTER);
   const [draggedClient, setDraggedClient] = useState<Client | null>(null);
   const [localClients, setLocalClients] = useState<Client[]>([]);
+
   const { data: remoteData, isLoading } = useQuery({
     queryKey: ["crm-pipeline-page"],
     enabled: isSupabaseConfigured,
@@ -142,21 +151,25 @@ export default function Pipeline() {
 
   const sourceClients = remoteData?.clients?.length ? remoteData.clients : clients;
   const sourceStages = remoteData?.stages?.length ? remoteData.stages : stages;
-  const sourceTemplates = remoteData?.templates?.length ? remoteData.templates : messageTemplates;
+  const sourceTemplates = remoteData?.templates?.length
+    ? remoteData.templates
+    : messageTemplates;
+
   const listOptions = useMemo(
     () =>
-      Array.from(new Set(sourceClients.map((client) => client.lista || "Sem lista"))).sort((a, b) =>
-        a.localeCompare(b),
+      Array.from(new Set(sourceClients.map((client) => client.lista || "Sem lista"))).sort(
+        (a, b) => a.localeCompare(b),
       ),
     [sourceClients],
   );
+
   const formOptions = useMemo(
     () =>
       Array.from(
         new Set(
           sourceClients
             .map((client) => client.formulario?.trim())
-            .filter((formulario) => formulario && formulario !== "Sem formulario"),
+            .filter((formulario) => formulario && formulario !== "Sem formulário"),
         ),
       ).sort((a, b) => a.localeCompare(b)),
     [sourceClients],
@@ -205,7 +218,8 @@ export default function Pipeline() {
       setLocalClients(sourceClients);
       toast({
         title: "Erro ao mover card",
-        description: error instanceof Error ? error.message : "Não foi possível mover o contato.",
+        description:
+          error instanceof Error ? error.message : "Não foi possível mover o contato.",
         variant: "destructive",
       });
     },
@@ -227,7 +241,8 @@ export default function Pipeline() {
     if (!isSupabaseConfigured) {
       toast({
         title: "Movido localmente",
-        description: "O card foi movido apenas na tela porque o Supabase não está configurado.",
+        description:
+          "O card foi movido apenas na tela porque o Supabase não está configurado.",
       });
       return;
     }
@@ -288,6 +303,7 @@ export default function Pipeline() {
             ))}
           </select>
         </div>
+
         <div className="min-w-[220px]">
           <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Formulário
@@ -305,6 +321,7 @@ export default function Pipeline() {
             ))}
           </select>
         </div>
+
         <div className="text-sm text-muted-foreground">
           {selectedList === "todas"
             ? selectedForm === "todos"
@@ -314,9 +331,11 @@ export default function Pipeline() {
               ? `Kanban filtrado para a lista: ${selectedList}`
               : `Kanban filtrado para a lista ${selectedList} e formulário ${selectedForm}`}
         </div>
+
         <div className="w-full text-xs text-muted-foreground">
           Para mover um lead, clique e segure no card e arraste para outra etapa.
         </div>
+
         <div className="w-full border-t border-border/60 pt-3">
           <div className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Ir para etapa
@@ -345,8 +364,7 @@ export default function Pipeline() {
             const stageClients = displayedClients
               .filter((client) => {
                 const matchesStage = client.etapa === stage.id;
-                const matchesList =
-                  selectedList === "todas" || client.lista === selectedList;
+                const matchesList = selectedList === "todas" || client.lista === selectedList;
                 const matchesForm =
                   selectedForm === "todos" || client.formulario === selectedForm;
                 return matchesStage && matchesList && matchesForm;
@@ -356,6 +374,7 @@ export default function Pipeline() {
                   new Date(secondClient.ultimaInteracao).getTime() -
                   new Date(firstClient.ultimaInteracao).getTime(),
               );
+
             return (
               <motion.div
                 key={stage.id}
@@ -370,10 +389,16 @@ export default function Pipeline() {
                 <div className="mb-3 flex items-center gap-2">
                   <div className={cn("h-3 w-3 rounded-full", stage.color)} />
                   <h3 className="text-sm font-semibold text-foreground">{stage.label}</h3>
-                  <span className={cn("ml-auto stage-badge", stage.color, "text-accent-foreground")}>
+                  <span
+                    className={cn(
+                      "ml-auto stage-badge text-accent-foreground",
+                      stage.color,
+                    )}
+                  >
                     {stageClients.length}
                   </span>
                 </div>
+
                 <div
                   className={cn(
                     "flex-1 space-y-3 rounded-xl bg-muted/50 p-3 transition-colors",
@@ -383,8 +408,11 @@ export default function Pipeline() {
                   onDrop={() => void handleDropOnStage(stage.id)}
                 >
                   {stageClients.length === 0 && (
-                    <p className="py-8 text-center text-xs text-muted-foreground">Nenhum cliente</p>
+                    <p className="py-8 text-center text-xs text-muted-foreground">
+                      Nenhum cliente
+                    </p>
                   )}
+
                   {stageClients.map((client) => (
                     <PipelineCard
                       key={client.id}
