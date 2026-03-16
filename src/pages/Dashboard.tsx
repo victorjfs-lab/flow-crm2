@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   formatDate,
+  getClientCategorySummary,
   getClientMetrics,
   getFormConversionSummary,
   getNextActionLabel,
@@ -85,6 +86,7 @@ export default function Dashboard() {
   const stageDistribution = getStageDistribution(sourceStages, sourceClients);
   const recentActivities = getRecentActivities(sourceClients);
   const formConversion = getFormConversionSummary(sourceClients);
+  const categorySummary = getClientCategorySummary(sourceClients);
 
   return (
     <div className="space-y-8">
@@ -107,6 +109,30 @@ export default function Dashboard() {
         <MetricCard title="Vendas do Mês" value={metrics.vendasMesFormatadas} icon={TrendingUp} color="bg-stage-fechado" delay={0.25} />
         <MetricCard title="Smart Vendidos" value={metrics.smartVendidoMes} icon={RefreshCw} color="bg-stage-proposta" delay={0.3} />
         <MetricCard title="Mentorias Vendidas" value={metrics.mentoriaVendidaMes} icon={GraduationCap} color="bg-stage-contato" delay={0.35} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <MetricCard
+          title="Indicador Free"
+          value={categorySummary.indicadorFree}
+          icon={Users}
+          color="bg-stage-espera"
+          delay={0.38}
+        />
+        <MetricCard
+          title="Clear"
+          value={categorySummary.clear}
+          icon={Users}
+          color="bg-stage-contato"
+          delay={0.41}
+        />
+        <MetricCard
+          title="Outros"
+          value={categorySummary.outros}
+          icon={Users}
+          color="bg-stage-fechado"
+          delay={0.44}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
