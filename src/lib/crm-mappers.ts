@@ -58,6 +58,7 @@ export function mapContactRowToClient(
     produtoVendido: row.sold_product,
     valorVenda: row.sold_amount,
     dayTradeStatus: row.day_trade_status,
+    categoriaCliente: row.client_category,
     responsavel: owner?.full_name ?? "Sem responsavel",
     origem: row.source ?? "",
     observacoes: row.notes ?? "",

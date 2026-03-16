@@ -213,6 +213,32 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
   };
 }
 
+export function getClientCategorySummary(sourceClients: Client[] = clients) {
+  const summary = {
+    indicadorFree: 0,
+    clear: 0,
+    outros: 0,
+  };
+
+  for (const client of sourceClients) {
+    if (client.categoriaCliente === "Indicador Free") {
+      summary.indicadorFree += 1;
+      continue;
+    }
+
+    if (client.categoriaCliente === "Clear") {
+      summary.clear += 1;
+      continue;
+    }
+
+    if (client.categoriaCliente === "Outros") {
+      summary.outros += 1;
+    }
+  }
+
+  return summary;
+}
+
 export function getStageDistribution(
   sourceStages = stages,
   sourceClients: Client[] = clients,

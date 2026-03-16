@@ -76,6 +76,7 @@ export default function ClientDetailDrawer({
     telefone: "",
     formulario: "",
     origem: "",
+    categoriaCliente: "",
     observacoes: "",
     etapa: "espera" as StageId,
     lembreteContato: "",
@@ -97,6 +98,7 @@ export default function ClientDetailDrawer({
       telefone: client.telefone || "",
       formulario: client.formulario || "",
       origem: client.origem || "",
+      categoriaCliente: client.categoriaCliente || "",
       observacoes: client.observacoes || "",
       etapa: client.etapa,
       lembreteContato: client.lembreteContato ? client.lembreteContato.slice(0, 10) : "",
@@ -136,6 +138,12 @@ export default function ClientDetailDrawer({
         telefone: formData.telefone,
         formulario: formData.formulario || "Sem formulário",
         origem: formData.origem,
+        categoriaCliente:
+          formData.categoriaCliente === "Indicador Free" ||
+          formData.categoriaCliente === "Clear" ||
+          formData.categoriaCliente === "Outros"
+            ? formData.categoriaCliente
+            : null,
         observacoes: formData.observacoes,
         etapa: formData.etapa,
         lembreteContato: formData.lembreteContato
@@ -257,6 +265,12 @@ export default function ClientDetailDrawer({
       whatsappPhone: formData.telefone,
       formName: formData.formulario,
       source: formData.origem,
+      clientCategory:
+        formData.categoriaCliente === "Indicador Free" ||
+        formData.categoriaCliente === "Clear" ||
+        formData.categoriaCliente === "Outros"
+          ? formData.categoriaCliente
+          : "",
       notes: formData.observacoes,
       nextActionAt: formData.lembreteContato ? `${formData.lembreteContato}T09:00:00.000Z` : "",
       saleDate: formData.dataVenda ? `${formData.dataVenda}T12:00:00.000Z` : "",
@@ -278,6 +292,7 @@ export default function ClientDetailDrawer({
       telefone: client.telefone || "",
       formulario: client.formulario || "",
       origem: client.origem || "",
+      categoriaCliente: client.categoriaCliente || "",
       observacoes: client.observacoes || "",
       etapa: client.etapa,
       lembreteContato: client.lembreteContato ? client.lembreteContato.slice(0, 10) : "",
@@ -419,6 +434,17 @@ export default function ClientDetailDrawer({
                 onChange={(value) => setFormData((current) => ({ ...current, origem: value }))}
                 placeholder="Digite a origem do lead"
               />
+              <EditableSelect
+                label="Categoria"
+                value={formData.categoriaCliente}
+                onChange={(value) => setFormData((current) => ({ ...current, categoriaCliente: value }))}
+                options={[
+                  { value: "", label: "Selecione" },
+                  { value: "Indicador Free", label: "Indicador Free" },
+                  { value: "Clear", label: "Clear" },
+                  { value: "Outros", label: "Outros" },
+                ]}
+              />
               <EditableTextarea
                 label="Observações"
                 value={formData.observacoes}
@@ -477,7 +503,11 @@ export default function ClientDetailDrawer({
             <span className={cn("stage-badge text-accent-foreground", getStageColor(displayClient.etapa))}>
               {getStageLabel(displayClient.etapa)}
             </span>
-            <span className="stage-badge border border-border bg-muted text-foreground">{displayClient.lista}</span>
+            {displayClient.categoriaCliente && (
+              <span className="stage-badge border border-border bg-muted text-foreground">
+                {displayClient.categoriaCliente}
+              </span>
+            )}
             {displayClient.tags.map((tag) => (
               <span key={tag} className="stage-badge border border-border bg-card text-muted-foreground">
                 <Tag className="mr-1 h-3 w-3" />

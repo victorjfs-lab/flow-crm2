@@ -22,6 +22,7 @@ export interface Client {
   produtoVendido?: "smart" | "mentoria" | null;
   valorVenda?: number | null;
   dayTradeStatus?: string | null;
+  categoriaCliente?: "Indicador Free" | "Clear" | "Outros" | null;
   responsavel: string;
   origem: string;
   observacoes: string;

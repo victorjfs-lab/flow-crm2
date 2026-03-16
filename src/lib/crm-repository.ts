@@ -265,6 +265,7 @@ export async function updateContactDetails({
   formName,
   source,
   notes,
+  clientCategory,
   nextActionAt,
   saleDate,
   soldProduct,
@@ -278,6 +279,7 @@ export async function updateContactDetails({
   formName: string;
   source: string;
   notes: string;
+  clientCategory?: "Indicador Free" | "Clear" | "Outros" | "";
   nextActionAt?: string;
   saleDate?: string;
   soldProduct?: "smart" | "mentoria" | "";
@@ -302,6 +304,7 @@ export async function updateContactDetails({
     form_name: formName.trim() || null,
     source: source.trim() || null,
     notes: notes.trim() || null,
+    client_category: clientCategory || null,
     next_action_at: nextActionAt || null,
     sale_date: saleDate || null,
     sold_product: soldProduct || null,
