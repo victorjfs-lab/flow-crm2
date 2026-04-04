@@ -26,7 +26,14 @@ export async function loadCrmSnapshot(): Promise<CrmSnapshot> {
     userRows.map((user) => [user.id, { full_name: user.full_name }]),
   );
 
-  const interactionRows = await listInteractionsByContactIds(contactRows.map((contact) => contact.id));
+  let interactionRows: Awaited<ReturnType<typeof listInteractionsByContactIds>> = [];
+
+  try {
+    interactionRows = await listInteractionsByContactIds(contactRows.map((contact) => contact.id));
+  } catch (error) {
+    console.warn("Nao foi possivel carregar o historico dos contatos.", error);
+  }
+
   const mappedStages = stageRows
     .map(mapStageRowToStage)
     .sort((firstStage, secondStage) => firstStage.order - secondStage.order);

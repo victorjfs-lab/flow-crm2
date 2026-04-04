@@ -86,14 +86,25 @@ export async function listInteractionsByContactIds(contactIds: string[]) {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from("contact_interactions")
-    .select("*")
-    .in("contact_id", contactIds)
-    .order("happened_at", { ascending: false });
+  const chunkSize = 100;
+  const results: any[] = [];
 
-  if (error) throw error;
-  return data;
+  for (let index = 0; index < contactIds.length; index += chunkSize) {
+    const batchIds = contactIds.slice(index, index + chunkSize);
+    const { data, error } = await supabase
+      .from("contact_interactions")
+      .select("*")
+      .in("contact_id", batchIds)
+      .order("happened_at", { ascending: false });
+
+    if (error) throw error;
+    results.push(...(data ?? []));
+  }
+
+  return results.sort(
+    (firstRow, secondRow) =>
+      new Date(secondRow.happened_at).getTime() - new Date(firstRow.happened_at).getTime(),
+  );
 }
 
 export async function listContactAttachments(contactId: string) {
