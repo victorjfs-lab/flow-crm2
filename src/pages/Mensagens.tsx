@@ -20,9 +20,9 @@ export default function Mensagens() {
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceTemplates = remoteData?.templates?.length ? remoteData.templates : messageTemplates;
-  const sourceStages = remoteData?.stages?.length ? remoteData.stages : mockStages;
-  const sourceListas = remoteData?.listas?.length ? remoteData.listas : mockListas;
+  const sourceTemplates = isSupabaseConfigured ? (remoteData?.templates ?? []) : messageTemplates;
+  const sourceStages = isSupabaseConfigured ? (remoteData?.stages ?? []) : mockStages;
+  const sourceListas = isSupabaseConfigured ? (remoteData?.listas ?? []) : mockListas;
   const [templates, setTemplates] = useState<MessageTemplate[]>(sourceTemplates);
   const [selected, setSelected] = useState<MessageTemplate | null>(sourceTemplates[0] || null);
   const [editText, setEditText] = useState(sourceTemplates[0]?.mensagem || "");

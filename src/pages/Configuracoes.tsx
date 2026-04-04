@@ -34,10 +34,11 @@ export default function Configuracoes() {
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceStages = remoteData?.stages?.length ? remoteData.stages : stages;
-  const sourceListas = remoteData?.listas?.length ? remoteData.listas : listas;
-  const sourceResponsaveis =
-    remoteData?.responsaveis?.length ? remoteData.responsaveis : responsaveis;
+  const sourceStages = isSupabaseConfigured ? (remoteData?.stages ?? []) : stages;
+  const sourceListas = isSupabaseConfigured ? (remoteData?.listas ?? []) : listas;
+  const sourceResponsaveis = isSupabaseConfigured
+    ? (remoteData?.responsaveis ?? [])
+    : responsaveis;
 
   useEffect(() => {
     setStageForm(

@@ -74,14 +74,14 @@ function ActivityIcon({ tipo }: { tipo: string }) {
 }
 
 export default function Dashboard() {
-  const { data: remoteData, isLoading } = useQuery({
+  const { data: remoteData, isLoading, isError } = useQuery({
     queryKey: ["crm-dashboard-page"],
     enabled: isSupabaseConfigured,
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceClients = remoteData?.clients?.length ? remoteData.clients : clients;
-  const sourceStages = remoteData?.stages?.length ? remoteData.stages : stages;
+  const sourceClients = isSupabaseConfigured ? (remoteData?.clients ?? []) : clients;
+  const sourceStages = isSupabaseConfigured ? (remoteData?.stages ?? stages) : stages;
   const metrics = getClientMetrics(sourceClients);
   const stageDistribution = getStageDistribution(sourceStages, sourceClients);
   const recentActivities = getRecentActivities(sourceClients);
@@ -95,7 +95,11 @@ export default function Dashboard() {
         <p className="text-muted-foreground">Visão geral do seu funil comercial</p>
         {isSupabaseConfigured && (
           <p className="mt-1 text-xs text-muted-foreground">
-            {isLoading ? "Carregando dados do Supabase..." : "Dashboard conectado ao Supabase."}
+            {isLoading
+              ? "Carregando dados do Supabase..."
+              : isError
+                ? "Erro ao carregar dados do Supabase."
+                : "Dashboard conectado ao Supabase."}
           </p>
         )}
       </div>

@@ -51,18 +51,18 @@ export default function Clientes() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [manualContactForm, setManualContactForm] = useState(EMPTY_MANUAL_CONTACT_FORM);
 
-  const { data: remoteData, isLoading } = useQuery({
+  const { data: remoteData, isLoading, isError } = useQuery({
     queryKey: ["crm-clientes-page"],
     enabled: isSupabaseConfigured,
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceClients = remoteData?.clients?.length ? remoteData.clients : clients;
-  const sourceStages = remoteData?.stages?.length ? remoteData.stages : stages;
-  const sourceListas = remoteData?.listas?.length ? remoteData.listas : listas;
+  const sourceClients = isSupabaseConfigured ? (remoteData?.clients ?? []) : clients;
+  const sourceStages = isSupabaseConfigured ? (remoteData?.stages ?? stages) : stages;
+  const sourceListas = isSupabaseConfigured ? (remoteData?.listas ?? []) : listas;
   const sourceResponsaveis =
-    remoteData?.responsaveis?.length ? remoteData.responsaveis : responsaveis;
-  const sourceTemplates = remoteData?.templates?.length ? remoteData.templates : undefined;
+    isSupabaseConfigured ? (remoteData?.responsaveis ?? []) : responsaveis;
+  const sourceTemplates = isSupabaseConfigured ? remoteData?.templates : undefined;
 
   const createContactMutation = useMutation({
     mutationFn: createManualContact,
@@ -145,7 +145,9 @@ export default function Clientes() {
             <p className="mt-1 text-xs text-muted-foreground">
               {isLoading
                 ? "Carregando dados do Supabase..."
-                : "Supabase conectado. Se não houver registros, os mocks continuam como apoio."}
+                : isError
+                  ? "Erro ao carregar dados do Supabase."
+                  : "Supabase conectado."}
             </p>
           )}
         </div>

@@ -140,16 +140,16 @@ export default function Pipeline() {
   const [draggedClient, setDraggedClient] = useState<Client | null>(null);
   const [localClients, setLocalClients] = useState<Client[]>([]);
 
-  const { data: remoteData, isLoading } = useQuery({
+  const { data: remoteData, isLoading, isError } = useQuery({
     queryKey: ["crm-pipeline-page"],
     enabled: isSupabaseConfigured,
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceClients = remoteData?.clients?.length ? remoteData.clients : clients;
-  const sourceStages = remoteData?.stages?.length ? remoteData.stages : stages;
-  const sourceTemplates = remoteData?.templates?.length
-    ? remoteData.templates
+  const sourceClients = isSupabaseConfigured ? (remoteData?.clients ?? []) : clients;
+  const sourceStages = isSupabaseConfigured ? (remoteData?.stages ?? stages) : stages;
+  const sourceTemplates = isSupabaseConfigured
+    ? (remoteData?.templates ?? [])
     : messageTemplates;
 
   const listOptions = useMemo(

@@ -23,8 +23,8 @@ export default function Renovacoes() {
     queryFn: loadCrmSnapshot,
   });
 
-  const sourceClients = remoteData?.clients?.length ? remoteData.clients : clients;
-  const sourceTemplates = remoteData?.templates?.length ? remoteData.templates : undefined;
+  const sourceClients = isSupabaseConfigured ? (remoteData?.clients ?? []) : clients;
+  const sourceTemplates = isSupabaseConfigured ? remoteData?.templates : undefined;
   const renewalEntries = useMemo(() => getRenewalCandidates(sourceClients), [sourceClients]);
 
   return (
