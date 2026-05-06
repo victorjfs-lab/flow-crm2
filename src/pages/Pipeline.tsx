@@ -6,14 +6,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
 import { buildWhatsAppUrl, formatDateTime, getPrimaryClientMessage, getPriorityMeta } from "@/data/crm";
 import { clients, messageTemplates, stages } from "@/data/mockData";
-import { Client, MessageTemplate } from "@/data/types";
+import { Client, ClientCategory, MessageTemplate } from "@/data/types";
 import { useToast } from "@/hooks/use-toast";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
-import { moveContactToStage } from "@/lib/crm-repository";
+import { moveContactToStage, updateContactCategory } from "@/lib/crm-repository";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_LIST_FILTER = "todas";
+const CLIENT_CATEGORY_OPTIONS: Array<{ value: ClientCategory | ""; label: string }> = [
+  { value: "", label: "Categoria" },
+  { value: "Clear", label: "Clear" },
+  { value: "Low", label: "Low" },
+  { value: "Indicador Free", label: "Indicador Free" },
+  { value: "Outros", label: "Outros" },
+];
 
 function PipelineCard({
   client,
@@ -22,6 +29,8 @@ function PipelineCard({
   onDragStart,
   onSchedule,
   onMarkSale,
+  onCategoryChange,
+  isUpdatingCategory,
 }: {
   client: Client;
   templates: MessageTemplate[];
@@ -29,6 +38,8 @@ function PipelineCard({
   onDragStart: (client: Client) => void;
   onSchedule: (client: Client) => void;
   onMarkSale: (client: Client) => void;
+  onCategoryChange: (client: Client, category: ClientCategory | "") => void;
+  isUpdatingCategory: boolean;
 }) {
   const message = getPrimaryClientMessage(client, templates);
   const canOpenWhatsapp = Boolean(client.telefone && message);
@@ -65,6 +76,23 @@ function PipelineCard({
 
       <div className="mb-3">
         <div className="flex flex-wrap gap-2">
+          <select
+            value={client.categoriaCliente ?? ""}
+            disabled={isUpdatingCategory}
+            onPointerDown={(event) => event.stopPropagation()}
+            onDragStart={(event) => event.stopPropagation()}
+            onChange={(event) =>
+              onCategoryChange(client, event.target.value as ClientCategory | "")
+            }
+            className="h-7 max-w-[150px] rounded-full border border-primary/20 bg-primary/5 px-2 text-[11px] font-medium text-primary outline-none transition-colors hover:bg-primary/10 disabled:cursor-wait disabled:opacity-70"
+            aria-label={`Categoria de ${client.nome}`}
+          >
+            {CLIENT_CATEGORY_OPTIONS.map((option) => (
+              <option key={option.value || "empty"} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           <span className="inline-flex rounded-full border border-border bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
             {client.formulario}
           </span>
@@ -139,6 +167,7 @@ export default function Pipeline() {
   const [selectedList, setSelectedList] = useState(DEFAULT_LIST_FILTER);
   const [draggedClient, setDraggedClient] = useState<Client | null>(null);
   const [localClients, setLocalClients] = useState<Client[]>([]);
+  const [updatingCategoryClientId, setUpdatingCategoryClientId] = useState<string | null>(null);
 
   const { data: remoteData, isLoading, isError } = useQuery({
     queryKey: ["crm-pipeline-page"],
@@ -252,6 +281,60 @@ export default function Pipeline() {
       });
     } catch {
       setLocalClients(previousClients);
+    }
+  };
+
+  const handleCategoryChange = async (targetClient: Client, category: ClientCategory | "") => {
+    const previousClients = displayedClients;
+    const nextInteractionAt = new Date().toISOString();
+    const nextCategory = category || null;
+    const updatedClients = displayedClients.map((client) =>
+      client.id === targetClient.id
+        ? { ...client, categoriaCliente: nextCategory, ultimaInteracao: nextInteractionAt }
+        : client,
+    );
+
+    setLocalClients(updatedClients);
+    setSelectedClient((current) =>
+      current?.id === targetClient.id
+        ? { ...current, categoriaCliente: nextCategory, ultimaInteracao: nextInteractionAt }
+        : current,
+    );
+
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Categoria alterada na tela",
+        description: "O Supabase nao esta configurado neste ambiente.",
+      });
+      return;
+    }
+
+    setUpdatingCategoryClientId(targetClient.id);
+
+    try {
+      await updateContactCategory({
+        contactId: targetClient.id,
+        clientCategory: category,
+      });
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm-pipeline-page"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm-clientes-page"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm-dashboard-page"] }),
+      ]);
+    } catch (error) {
+      setLocalClients(previousClients);
+      setSelectedClient((current) =>
+        current?.id === targetClient.id ? targetClient : current,
+      );
+      toast({
+        title: "Erro ao salvar categoria",
+        description:
+          error instanceof Error ? error.message : "Nao foi possivel atualizar a categoria.",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingCategoryClientId(null);
     }
   };
 
@@ -430,6 +513,8 @@ export default function Pipeline() {
                         setDrawerInitialSection("sale");
                         setSelectedClient(cardClient);
                       }}
+                      onCategoryChange={handleCategoryChange}
+                      isUpdatingCategory={updatingCategoryClientId === client.id}
                       onDragStart={setDraggedClient}
                     />
                   ))}

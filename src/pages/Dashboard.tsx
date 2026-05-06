@@ -115,7 +115,7 @@ export default function Dashboard() {
         <MetricCard title="Mentorias Vendidas" value={metrics.mentoriaVendidaMes} icon={GraduationCap} color="bg-stage-contato" delay={0.35} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <MetricCard
           title="Indicador Free"
           value={categorySummary.indicadorFree}
@@ -131,11 +131,18 @@ export default function Dashboard() {
           delay={0.41}
         />
         <MetricCard
+          title="Low"
+          value={categorySummary.low}
+          icon={Users}
+          color="bg-stage-acompanhamento"
+          delay={0.43}
+        />
+        <MetricCard
           title="Outros"
           value={categorySummary.outros}
           icon={Users}
           color="bg-stage-fechado"
-          delay={0.44}
+          delay={0.45}
         />
       </div>
 

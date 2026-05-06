@@ -141,6 +141,7 @@ export default function ClientDetailDrawer({
         categoriaCliente:
           formData.categoriaCliente === "Indicador Free" ||
           formData.categoriaCliente === "Clear" ||
+          formData.categoriaCliente === "Low" ||
           formData.categoriaCliente === "Outros"
             ? formData.categoriaCliente
             : null,
@@ -268,6 +269,7 @@ export default function ClientDetailDrawer({
       clientCategory:
         formData.categoriaCliente === "Indicador Free" ||
         formData.categoriaCliente === "Clear" ||
+        formData.categoriaCliente === "Low" ||
         formData.categoriaCliente === "Outros"
           ? formData.categoriaCliente
           : "",
@@ -442,6 +444,7 @@ export default function ClientDetailDrawer({
                   { value: "", label: "Selecione" },
                   { value: "Indicador Free", label: "Indicador Free" },
                   { value: "Clear", label: "Clear" },
+                  { value: "Low", label: "Low" },
                   { value: "Outros", label: "Outros" },
                 ]}
               />

@@ -217,6 +217,7 @@ export function getClientCategorySummary(sourceClients: Client[] = clients) {
   const summary = {
     indicadorFree: 0,
     clear: 0,
+    low: 0,
     outros: 0,
   };
 
@@ -228,6 +229,11 @@ export function getClientCategorySummary(sourceClients: Client[] = clients) {
 
     if (client.categoriaCliente === "Clear") {
       summary.clear += 1;
+      continue;
+    }
+
+    if (client.categoriaCliente === "Low") {
+      summary.low += 1;
       continue;
     }
 

@@ -68,7 +68,7 @@ export interface Database {
           sold_product: "smart" | "mentoria" | null;
           sold_amount: number | null;
           day_trade_status: string | null;
-          client_category: "Indicador Free" | "Clear" | "Outros" | null;
+          client_category: "Indicador Free" | "Clear" | "Low" | "Outros" | null;
           is_archived: boolean;
           created_at: string;
           updated_at: string;

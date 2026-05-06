@@ -290,7 +290,7 @@ export async function updateContactDetails({
   formName: string;
   source: string;
   notes: string;
-  clientCategory?: "Indicador Free" | "Clear" | "Outros" | "";
+  clientCategory?: "Indicador Free" | "Clear" | "Low" | "Outros" | "";
   nextActionAt?: string;
   saleDate?: string;
   soldProduct?: "smart" | "mentoria" | "";
@@ -366,6 +366,42 @@ export async function updateContactDetails({
 
     if (historyError) throw historyError;
   }
+
+  return data;
+}
+
+export async function updateContactCategory({
+  contactId,
+  clientCategory,
+}: {
+  contactId: string;
+  clientCategory: "Indicador Free" | "Clear" | "Low" | "Outros" | "";
+}) {
+  if (!supabase) {
+    throw new Error("Supabase nao configurado.");
+  }
+
+  const { data, error } = await supabase
+    .from("contacts")
+    .update({
+      client_category: clientCategory || null,
+      last_interaction_at: new Date().toISOString(),
+    })
+    .eq("id", contactId)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
+  const { error: interactionError } = await supabase
+    .from("contact_interactions")
+    .insert({
+      contact_id: contactId,
+      interaction_type: "note",
+      description: "Categoria do cliente atualizada no CRM",
+    });
+
+  if (interactionError) throw interactionError;
 
   return data;
 }

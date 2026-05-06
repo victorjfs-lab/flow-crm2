@@ -7,6 +7,8 @@ export interface Stage {
   order: number;
 }
 
+export type ClientCategory = "Indicador Free" | "Clear" | "Low" | "Outros";
+
 export interface Client {
   id: string;
   nome: string;
@@ -22,7 +24,7 @@ export interface Client {
   produtoVendido?: "smart" | "mentoria" | null;
   valorVenda?: number | null;
   dayTradeStatus?: string | null;
-  categoriaCliente?: "Indicador Free" | "Clear" | "Outros" | null;
+  categoriaCliente?: ClientCategory | null;
   responsavel: string;
   origem: string;
   observacoes: string;
