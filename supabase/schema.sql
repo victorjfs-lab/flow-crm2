@@ -189,12 +189,12 @@ for each row execute function public.set_updated_at();
 
 insert into public.pipeline_stages (code, name, color_token, stage_order)
 values
-  ('novo', 'Novo Lead', 'bg-stage-novo', 1),
-  ('contato', 'Contato Inicial', 'bg-stage-contato', 2),
-  ('espera', 'Espera Smart Flow', 'bg-stage-espera', 3),
-  ('acompanhamento', 'Em Acompanhamento', 'bg-stage-acompanhamento', 4),
-  ('proposta', 'Proposta Enviada', 'bg-stage-proposta', 5),
-  ('fechado', 'Fechado', 'bg-stage-fechado', 6),
+  ('espera', 'Clientes Clear', 'bg-stage-espera', 1),
+  ('acompanhamento', 'Em negociação', 'bg-stage-acompanhamento', 2),
+  ('proposta', 'Prontos para fechar', 'bg-stage-proposta', 3),
+  ('fechado', 'Fechados Smart', 'bg-stage-fechado', 4),
+  ('contato', 'Fechados 5C', 'bg-stage-contato', 5),
+  ('novo', 'Continua Smart', 'bg-stage-novo', 6),
   ('perdido', 'Perdido', 'bg-stage-perdido', 7)
 on conflict (code) do update
 set

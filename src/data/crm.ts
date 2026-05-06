@@ -4,11 +4,11 @@ import { Activity, Client, MessageTemplate, StageId } from "./types";
 export const TODAY = "2026-03-13";
 export const FUNNEL_STAGE_LABELS: Record<StageId, string> = {
   novo: "Continua Smart",
-  contato: "Follow Up Mentoria",
-  espera: "Espera Smart Flow",
-  acompanhamento: "Acompanhamento",
-  proposta: "Fechado Smart",
-  fechado: "Fechado Mentoria",
+  contato: "Fechados 5C",
+  espera: "Clientes Clear",
+  acompanhamento: "Em negociação",
+  proposta: "Prontos para fechar",
+  fechado: "Fechados Smart",
   perdido: "Perdido",
 };
 
@@ -18,8 +18,8 @@ export const FUNNEL_STAGE_ORDER: Record<StageId, number> = {
   espera: 1,
   acompanhamento: 2,
   proposta: 3,
-  contato: 4,
-  fechado: 5,
+  fechado: 4,
+  contato: 5,
   novo: 6,
   perdido: 7,
 };
@@ -257,12 +257,12 @@ export function getStageDistribution(
 
 export function getNextActionLabel(client: Client) {
   const labels: Record<StageId, string> = {
-    novo: "Fazer primeiro contato",
-    contato: "Qualificar interesse",
-    espera: "Enviar atualizacao",
-    acompanhamento: "Retomar conversa",
-    proposta: "Cobrar retorno",
-    fechado: "Iniciar onboarding",
+    novo: "Continuar acompanhamento Smart",
+    contato: "Acompanhar cliente 5C",
+    espera: "Qualificar cliente Clear",
+    acompanhamento: "Negociar proposta",
+    proposta: "Conduzir fechamento",
+    fechado: "Iniciar onboarding Smart",
     perdido: "Marcar reengajamento",
   };
 
