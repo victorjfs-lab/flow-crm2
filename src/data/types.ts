@@ -1,4 +1,13 @@
-export type StageId = 'novo' | 'contato' | 'espera' | 'acompanhamento' | 'proposta' | 'fechado' | 'perdido';
+export type StageId =
+  | "clientes_novos"
+  | "clientes_velhos"
+  | "novo"
+  | "contato"
+  | "espera"
+  | "acompanhamento"
+  | "proposta"
+  | "fechado"
+  | "perdido";
 
 export interface Stage {
   id: StageId;

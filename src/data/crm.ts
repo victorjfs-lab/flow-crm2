@@ -3,6 +3,8 @@ import { Activity, Client, MessageTemplate, StageId } from "./types";
 
 export const TODAY = "2026-03-13";
 export const FUNNEL_STAGE_LABELS: Record<StageId, string> = {
+  clientes_novos: "Clientes Novos",
+  clientes_velhos: "Clientes Velhos",
   novo: "Continua Smart",
   contato: "Fechados 5C",
   espera: "Clientes Clear",
@@ -15,13 +17,15 @@ export const FUNNEL_STAGE_LABELS: Record<StageId, string> = {
 const stageLabelOverrides: Partial<Record<StageId, string>> = {};
 
 export const FUNNEL_STAGE_ORDER: Record<StageId, number> = {
-  espera: 1,
-  acompanhamento: 2,
-  proposta: 3,
-  fechado: 4,
-  contato: 5,
-  novo: 6,
-  perdido: 7,
+  clientes_novos: 1,
+  clientes_velhos: 2,
+  espera: 3,
+  acompanhamento: 4,
+  proposta: 5,
+  fechado: 6,
+  contato: 7,
+  novo: 8,
+  perdido: 9,
 };
 
 export function formatDate(date: string) {
@@ -103,6 +107,8 @@ export function getStageLabel(etapa: StageId): string {
 
 export function getStageColor(etapa: StageId): string {
   const map: Record<StageId, string> = {
+    clientes_novos: "bg-stage-clientes-novos",
+    clientes_velhos: "bg-stage-clientes-velhos",
     novo: "bg-stage-novo",
     contato: "bg-stage-contato",
     espera: "bg-stage-espera",
@@ -257,6 +263,8 @@ export function getStageDistribution(
 
 export function getNextActionLabel(client: Client) {
   const labels: Record<StageId, string> = {
+    clientes_novos: "Fazer primeiro contato",
+    clientes_velhos: "Retomar cliente antigo",
     novo: "Continuar acompanhamento Smart",
     contato: "Acompanhar cliente 5C",
     espera: "Qualificar cliente Clear",

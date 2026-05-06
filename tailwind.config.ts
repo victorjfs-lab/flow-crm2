@@ -56,6 +56,8 @@ export default {
         },
         stage: {
           novo: "hsl(var(--stage-novo))",
+          "clientes-novos": "hsl(var(--stage-clientes-novos))",
+          "clientes-velhos": "hsl(var(--stage-clientes-velhos))",
           contato: "hsl(var(--stage-contato))",
           espera: "hsl(var(--stage-espera))",
           acompanhamento: "hsl(var(--stage-acompanhamento))",
