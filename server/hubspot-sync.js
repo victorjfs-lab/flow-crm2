@@ -52,7 +52,7 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const hubspotToken = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
 
-const defaultStageCode = "clientes_novos";
+const defaultStageCode = "espera";
 const defaultListName = "Contato Inicial";
 
 async function hubspotFetch(url) {
