@@ -1,10 +1,10 @@
 import { Client, MessageTemplate, Stage } from "./types";
 
 export const stages: Stage[] = [
-  { id: "clientes_novos", label: "Clientes Novos", color: "bg-stage-clientes-novos", order: 1 },
-  { id: "clientes_velhos", label: "Clientes Velhos", color: "bg-stage-clientes-velhos", order: 2 },
-  { id: "espera", label: "Clientes Clear", color: "bg-stage-espera", order: 3 },
-  { id: "acompanhamento", label: "Em negociação", color: "bg-stage-acompanhamento", order: 4 },
+  { id: "clientes_novos", label: "Leads", color: "bg-stage-clientes-novos", order: 1 },
+  { id: "espera", label: "Clear", color: "bg-stage-espera", order: 2 },
+  { id: "acompanhamento", label: "Em negociação", color: "bg-stage-acompanhamento", order: 3 },
+  { id: "clientes_velhos", label: "Low", color: "bg-stage-clientes-velhos", order: 4 },
   { id: "proposta", label: "Prontos para fechar", color: "bg-stage-proposta", order: 5 },
   { id: "fechado", label: "Fechados Smart", color: "bg-stage-fechado", order: 6 },
   { id: "contato", label: "Fechados 5C", color: "bg-stage-contato", order: 7 },

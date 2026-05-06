@@ -3,11 +3,11 @@ import { Activity, Client, MessageTemplate, StageId } from "./types";
 
 export const TODAY = "2026-03-13";
 export const FUNNEL_STAGE_LABELS: Record<StageId, string> = {
-  clientes_novos: "Clientes Novos",
-  clientes_velhos: "Clientes Velhos",
+  clientes_novos: "Leads",
+  clientes_velhos: "Low",
   novo: "Continua Smart",
   contato: "Fechados 5C",
-  espera: "Clientes Clear",
+  espera: "Clear",
   acompanhamento: "Em negociação",
   proposta: "Prontos para fechar",
   fechado: "Fechados Smart",
@@ -18,9 +18,9 @@ const stageLabelOverrides: Partial<Record<StageId, string>> = {};
 
 export const FUNNEL_STAGE_ORDER: Record<StageId, number> = {
   clientes_novos: 1,
-  clientes_velhos: 2,
-  espera: 3,
-  acompanhamento: 4,
+  espera: 2,
+  acompanhamento: 3,
+  clientes_velhos: 4,
   proposta: 5,
   fechado: 6,
   contato: 7,
@@ -264,7 +264,7 @@ export function getStageDistribution(
 export function getNextActionLabel(client: Client) {
   const labels: Record<StageId, string> = {
     clientes_novos: "Fazer primeiro contato",
-    clientes_velhos: "Retomar cliente antigo",
+    clientes_velhos: "Qualificar lead Low",
     novo: "Continuar acompanhamento Smart",
     contato: "Acompanhar cliente 5C",
     espera: "Qualificar cliente Clear",

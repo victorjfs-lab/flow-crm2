@@ -78,7 +78,7 @@ export default function ClientDetailDrawer({
     origem: "",
     categoriaCliente: "",
     observacoes: "",
-    etapa: "espera" as StageId,
+    etapa: "clientes_novos" as StageId,
     lembreteContato: "",
     dataVenda: "",
     produtoVendido: "",

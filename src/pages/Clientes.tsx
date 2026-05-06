@@ -35,7 +35,7 @@ const EMPTY_MANUAL_CONTACT_FORM = {
   formulario: "",
   origem: "Manual",
   observacoes: "",
-  etapa: "espera",
+  etapa: "clientes_novos",
   lista: "",
   responsavel: "",
 };

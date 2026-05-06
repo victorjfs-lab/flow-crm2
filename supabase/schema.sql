@@ -189,10 +189,10 @@ for each row execute function public.set_updated_at();
 
 insert into public.pipeline_stages (code, name, color_token, stage_order)
 values
-  ('clientes_novos', 'Clientes Novos', 'bg-stage-clientes-novos', 1),
-  ('clientes_velhos', 'Clientes Velhos', 'bg-stage-clientes-velhos', 2),
-  ('espera', 'Clientes Clear', 'bg-stage-espera', 3),
-  ('acompanhamento', 'Em negociação', 'bg-stage-acompanhamento', 4),
+  ('clientes_novos', 'Leads', 'bg-stage-clientes-novos', 1),
+  ('espera', 'Clear', 'bg-stage-espera', 2),
+  ('acompanhamento', 'Em negociação', 'bg-stage-acompanhamento', 3),
+  ('clientes_velhos', 'Low', 'bg-stage-clientes-velhos', 4),
   ('proposta', 'Prontos para fechar', 'bg-stage-proposta', 5),
   ('fechado', 'Fechados Smart', 'bg-stage-fechado', 6),
   ('contato', 'Fechados 5C', 'bg-stage-contato', 7),
