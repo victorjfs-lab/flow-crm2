@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarPlus2, GripVertical, MessageCircle, Wallet } from "lucide-react";
+import { CalendarPlus2, GripVertical, MessageCircle, Wallet, X } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import ClientDetailDrawer from "@/components/ClientDetailDrawer";
@@ -9,7 +9,7 @@ import { clients, messageTemplates, stages } from "@/data/mockData";
 import { Client, ClientCategory, MessageTemplate } from "@/data/types";
 import { useToast } from "@/hooks/use-toast";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
-import { moveContactToStage, updateContactCategory } from "@/lib/crm-repository";
+import { archiveContact, moveContactToStage, updateContactCategory } from "@/lib/crm-repository";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,9 @@ function PipelineCard({
   onSchedule,
   onMarkSale,
   onCategoryChange,
+  onArchive,
   isUpdatingCategory,
+  isArchiving,
 }: {
   client: Client;
   templates: MessageTemplate[];
@@ -39,7 +41,9 @@ function PipelineCard({
   onSchedule: (client: Client) => void;
   onMarkSale: (client: Client) => void;
   onCategoryChange: (client: Client, category: ClientCategory | "") => void;
+  onArchive: (client: Client) => void;
   isUpdatingCategory: boolean;
+  isArchiving: boolean;
 }) {
   const message = getPrimaryClientMessage(client, templates);
   const canOpenWhatsapp = Boolean(client.telefone && message);
@@ -52,8 +56,24 @@ function PipelineCard({
       animate={{ opacity: 1, scale: 1 }}
       draggable
       onDragStart={() => onDragStart(client)}
-      className="cursor-grab rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
+      className="relative cursor-grab rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing"
     >
+      <button
+        type="button"
+        disabled={isArchiving}
+        onClick={(event) => {
+          event.stopPropagation();
+          onArchive(client);
+        }}
+        onPointerDown={(event) => event.stopPropagation()}
+        onDragStart={(event) => event.stopPropagation()}
+        className="absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-background/90 text-muted-foreground shadow-sm transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive disabled:cursor-wait disabled:opacity-50"
+        aria-label={`Excluir ${client.nome} do CRM`}
+        title="Excluir do CRM"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+
       <div className="mb-3 flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
@@ -68,7 +88,7 @@ function PipelineCard({
             <p className="text-xs text-muted-foreground">{client.lista}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
+        <div className="mr-6 flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-[11px] font-medium text-muted-foreground">
           <GripVertical className="h-3 w-3" />
           Arraste
         </div>
@@ -168,6 +188,7 @@ export default function Pipeline() {
   const [draggedClient, setDraggedClient] = useState<Client | null>(null);
   const [localClients, setLocalClients] = useState<Client[]>([]);
   const [updatingCategoryClientId, setUpdatingCategoryClientId] = useState<string | null>(null);
+  const [archivingClientId, setArchivingClientId] = useState<string | null>(null);
 
   const { data: remoteData, isLoading, isError } = useQuery({
     queryKey: ["crm-pipeline-page"],
@@ -250,6 +271,57 @@ export default function Pipeline() {
       });
     },
   });
+
+  const archiveMutation = useMutation({
+    mutationFn: archiveContact,
+    onSuccess: async (_result, contactId) => {
+      setLocalClients((currentClients) =>
+        currentClients.filter((client) => client.id !== contactId),
+      );
+
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["crm-pipeline-page"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm-clientes-page"] }),
+        queryClient.invalidateQueries({ queryKey: ["crm-dashboard-page"] }),
+      ]);
+
+      toast({
+        title: "Cliente removido",
+        description: "O card foi retirado do CRM.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao remover cliente",
+        description:
+          error instanceof Error ? error.message : "Nao foi possivel tirar o cliente do CRM.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setArchivingClientId(null);
+    },
+  });
+
+  const handleArchiveClient = (targetClient: Client) => {
+    if (!isSupabaseConfigured) {
+      toast({
+        title: "Exclusao indisponivel",
+        description: "Conecte o Supabase para remover clientes da base.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const confirmed = window.confirm(`Deseja tirar ${targetClient.nome} do CRM?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setArchivingClientId(targetClient.id);
+    archiveMutation.mutate(targetClient.id);
+  };
 
   const handleDropOnStage = async (targetStageId: Client["etapa"]) => {
     if (!draggedClient || draggedClient.etapa === targetStageId) {
@@ -514,7 +586,9 @@ export default function Pipeline() {
                         setSelectedClient(cardClient);
                       }}
                       onCategoryChange={handleCategoryChange}
+                      onArchive={handleArchiveClient}
                       isUpdatingCategory={updatingCategoryClientId === client.id}
+                      isArchiving={archivingClientId === client.id}
                       onDragStart={setDraggedClient}
                     />
                   ))}
