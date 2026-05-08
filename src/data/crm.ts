@@ -49,6 +49,19 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
+function parseValidDate(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate;
+}
+
 export function getPriorityMeta(client: Client) {
   const now = new Date();
   const lastInteraction = new Date(client.ultimaInteracao);
@@ -175,7 +188,11 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
       return total;
     }
 
-    const saleDate = new Date(client.dataVenda);
+    const saleDate = parseValidDate(client.dataVenda);
+    if (!saleDate) {
+      return total;
+    }
+
     if (saleDate.getMonth() !== today.getMonth() || saleDate.getFullYear() !== today.getFullYear()) {
       return total;
     }
@@ -188,7 +205,11 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
       return false;
     }
 
-    const saleDate = new Date(client.dataVenda);
+    const saleDate = parseValidDate(client.dataVenda);
+    if (!saleDate) {
+      return false;
+    }
+
     return saleDate.getMonth() === today.getMonth() && saleDate.getFullYear() === today.getFullYear();
   }).length;
 
@@ -197,7 +218,11 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
       return false;
     }
 
-    const saleDate = new Date(client.dataVenda);
+    const saleDate = parseValidDate(client.dataVenda);
+    if (!saleDate) {
+      return false;
+    }
+
     return saleDate.getMonth() === today.getMonth() && saleDate.getFullYear() === today.getFullYear();
   }).length;
 
@@ -326,7 +351,11 @@ export function getRenewalReminderDate(client: Client) {
     return null;
   }
 
-  const saleDate = new Date(client.dataVenda);
+  const saleDate = parseValidDate(client.dataVenda);
+  if (!saleDate) {
+    return null;
+  }
+
   const cycleEndDate = new Date(saleDate);
   cycleEndDate.setMonth(cycleEndDate.getMonth() + 5);
 
@@ -348,7 +377,11 @@ export function getRenewalCandidates(sourceClients: Client[] = clients) {
         return null;
       }
 
-      const cycleEndDate = new Date(client.dataVenda as string);
+      const cycleEndDate = parseValidDate(client.dataVenda);
+      if (!cycleEndDate) {
+        return null;
+      }
+
       cycleEndDate.setMonth(cycleEndDate.getMonth() + 5);
 
       return {
