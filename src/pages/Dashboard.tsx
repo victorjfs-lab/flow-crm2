@@ -4,12 +4,9 @@ import {
   UserPlus,
   Clock,
   Send,
-  TrendingUp,
   Phone,
   MessageCircle,
   ArrowRight,
-  RefreshCw,
-  GraduationCap,
 } from "lucide-react";
 import { clients, stages } from "@/data/mockData";
 import { Link } from "react-router-dom";
@@ -104,45 +101,20 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total de Clientes" value={metrics.total} icon={Users} color="bg-primary" delay={0} />
         <MetricCard title="Novos Hoje" value={metrics.novosHoje} icon={UserPlus} color="bg-stage-novo" delay={0.05} />
         <MetricCard title="Aguardando Contato" value={metrics.aguardandoContato} icon={Clock} color="bg-stage-espera" delay={0.1} />
-        <MetricCard title="Em Espera" value={metrics.emEspera} icon={TrendingUp} color="bg-stage-acompanhamento" delay={0.15} />
         <MetricCard title="Propostas em Aberto" value={metrics.propostasAbertas} icon={Send} color="bg-accent" delay={0.2} />
-        <MetricCard title="Vendas do Mês" value={metrics.vendasMesFormatadas} icon={TrendingUp} color="bg-stage-fechado" delay={0.25} />
-        <MetricCard title="Smart Vendidos" value={metrics.smartVendidoMes} icon={RefreshCw} color="bg-stage-proposta" delay={0.3} />
-        <MetricCard title="Mentorias Vendidas" value={metrics.mentoriaVendidaMes} icon={GraduationCap} color="bg-stage-contato" delay={0.35} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
         <MetricCard
           title="Indicador Free"
           value={categorySummary.indicadorFree}
           icon={Users}
           color="bg-stage-espera"
           delay={0.38}
-        />
-        <MetricCard
-          title="Clear"
-          value={categorySummary.clear}
-          icon={Users}
-          color="bg-stage-contato"
-          delay={0.41}
-        />
-        <MetricCard
-          title="Low"
-          value={categorySummary.low}
-          icon={Users}
-          color="bg-stage-acompanhamento"
-          delay={0.43}
-        />
-        <MetricCard
-          title="Outros"
-          value={categorySummary.outros}
-          icon={Users}
-          color="bg-stage-fechado"
-          delay={0.45}
         />
       </div>
 
