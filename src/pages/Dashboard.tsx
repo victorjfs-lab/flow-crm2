@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -7,6 +8,7 @@ import {
   Phone,
   MessageCircle,
   ArrowRight,
+  CalendarDays,
 } from "lucide-react";
 import { clients, stages } from "@/data/mockData";
 import { Link } from "react-router-dom";
@@ -15,14 +17,23 @@ import {
   formatDate,
   getClientCategorySummary,
   getClientMetrics,
+  getCurrentMonthKey,
   getFormConversionSummary,
   getNextActionLabel,
   getRecentActivities,
+  getRecentContactMonthSummary,
   getStageDistribution,
 } from "@/data/crm";
 import { useQuery } from "@tanstack/react-query";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { loadCrmSnapshot } from "@/lib/crm-loader";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function MetricCard({
   title,
@@ -57,6 +68,52 @@ function MetricCard({
   );
 }
 
+function MonthlyContactsCard({
+  months,
+  selectedMonthKey,
+  onSelectedMonthChange,
+}: {
+  months: ReturnType<typeof getRecentContactMonthSummary>;
+  selectedMonthKey: string;
+  onSelectedMonthChange: (monthKey: string) => void;
+}) {
+  const selectedMonth = months.find((month) => month.monthKey === selectedMonthKey) ?? months[0];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.34, duration: 0.4 }}
+      className="glass-card rounded-xl p-6"
+    >
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Contatos por Mês</p>
+          <p className="mt-2 text-3xl font-bold text-foreground">{selectedMonth?.total ?? 0}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{selectedMonth?.label}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={selectedMonth?.monthKey ?? selectedMonthKey} onValueChange={onSelectedMonthChange}>
+            <SelectTrigger className="h-10 w-[160px] bg-card">
+              <SelectValue placeholder="Escolher mês" />
+            </SelectTrigger>
+            <SelectContent>
+              {months.map((month) => (
+                <SelectItem key={month.monthKey} value={month.monthKey}>
+                  {month.shortLabel}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stage-contato">
+            <CalendarDays className="h-5 w-5 text-accent-foreground" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function ActivityIcon({ tipo }: { tipo: string }) {
   switch (tipo) {
     case "whatsapp":
@@ -84,6 +141,8 @@ export default function Dashboard() {
   const recentActivities = getRecentActivities(sourceClients);
   const formConversion = getFormConversionSummary(sourceClients);
   const categorySummary = getClientCategorySummary(sourceClients);
+  const monthlyContactSummary = getRecentContactMonthSummary(sourceClients);
+  const [selectedMonthKey, setSelectedMonthKey] = useState(() => getCurrentMonthKey());
 
   return (
     <div className="space-y-8">
@@ -103,12 +162,17 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard title="Total de Clientes" value={metrics.total} icon={Users} color="bg-primary" delay={0} />
-        <MetricCard title="Novos Hoje" value={metrics.novosHoje} icon={UserPlus} color="bg-stage-novo" delay={0.05} />
+        <MetricCard title="Novos no Mês" value={metrics.novosMes} icon={UserPlus} color="bg-stage-novo" delay={0.05} />
         <MetricCard title="Aguardando Contato" value={metrics.aguardandoContato} icon={Clock} color="bg-stage-espera" delay={0.1} />
         <MetricCard title="Propostas em Aberto" value={metrics.propostasAbertas} icon={Send} color="bg-accent" delay={0.2} />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlyContactsCard
+          months={monthlyContactSummary}
+          selectedMonthKey={selectedMonthKey}
+          onSelectedMonthChange={setSelectedMonthKey}
+        />
         <MetricCard
           title="Indicador Free"
           value={categorySummary.indicadorFree}

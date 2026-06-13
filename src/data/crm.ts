@@ -62,6 +62,72 @@ function parseValidDate(value?: string | null) {
   return parsedDate;
 }
 
+function formatMonthKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function getCurrentMonthKey(referenceDate = new Date()) {
+  return formatMonthKey(referenceDate);
+}
+
+function getContactMonthKey(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const isoMonth = value.match(/^(\d{4})-(\d{2})/);
+  if (isoMonth) {
+    return `${isoMonth[1]}-${isoMonth[2]}`;
+  }
+
+  const parsedDate = parseValidDate(value);
+  return parsedDate ? formatMonthKey(parsedDate) : null;
+}
+
+function capitalizeMonthLabel(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+export function getRecentContactMonthSummary(
+  sourceClients: Client[] = clients,
+  monthsToShow = 4,
+  referenceDate = new Date(),
+) {
+  const months = Array.from({ length: monthsToShow }, (_, index) => {
+    const date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - index, 1);
+
+    return {
+      monthKey: formatMonthKey(date),
+      label: capitalizeMonthLabel(
+        new Intl.DateTimeFormat("pt-BR", {
+          month: "long",
+          year: "numeric",
+        }).format(date),
+      ),
+      shortLabel: capitalizeMonthLabel(
+        new Intl.DateTimeFormat("pt-BR", {
+          month: "short",
+          year: "numeric",
+        }).format(date),
+      ),
+      total: 0,
+    };
+  });
+
+  const monthByKey = new Map(months.map((month) => [month.monthKey, month]));
+
+  for (const client of sourceClients) {
+    const monthKey = getContactMonthKey(client.dataEntrada);
+    const summary = monthKey ? monthByKey.get(monthKey) : null;
+
+    if (summary) {
+      summary.total += 1;
+    }
+  }
+
+  return months;
+}
+
 export function getPriorityMeta(client: Client) {
   const now = new Date();
   const lastInteraction = new Date(client.ultimaInteracao);
@@ -183,6 +249,7 @@ export function getPrimaryClientMessage(
 export function getClientMetrics(sourceClients: Client[] = clients) {
   const today = new Date();
   const todayDate = today.toISOString().slice(0, 10);
+  const currentMonthKey = getCurrentMonthKey(today);
   const monthlySalesValue = sourceClients.reduce((total, client) => {
     if (!client.dataVenda || client.valorVenda == null) {
       return total;
@@ -231,6 +298,7 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
   return {
     total: sourceClients.length,
     novosHoje: sourceClients.filter((client) => client.dataEntrada.startsWith(todayDate)).length,
+    novosMes: sourceClients.filter((client) => getContactMonthKey(client.dataEntrada) === currentMonthKey).length,
     aguardandoContato: sourceClients.filter(
       (client) => client.etapa === "novo" || client.etapa === "contato",
     ).length,
