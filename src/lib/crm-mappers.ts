@@ -52,6 +52,7 @@ export function mapContactRowToClient(
     lista: list?.name ?? "Sem lista",
     etapa: (stage?.code as Client["etapa"]) ?? "novo",
     dataEntrada: row.entered_at,
+    createdAt: row.created_at,
     ultimaInteracao: row.last_interaction_at ?? row.entered_at,
     lembreteContato: row.next_action_at,
     dataVenda: row.sale_date,

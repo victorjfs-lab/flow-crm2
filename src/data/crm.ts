@@ -138,6 +138,10 @@ function capitalizeMonthLabel(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function getContactCreatedValue(client: Client) {
+  return client.createdAt ?? client.dataEntrada;
+}
+
 export function getRecentContactMonthSummary(
   sourceClients: Client[] = clients,
   monthsToShow = 4,
@@ -171,7 +175,7 @@ export function getRecentContactMonthSummary(
   const monthByKey = new Map(months.map((month) => [month.monthKey, month]));
 
   for (const client of sourceClients) {
-    const monthKey = getContactMonthKey(client.dataEntrada);
+    const monthKey = getContactMonthKey(getContactCreatedValue(client));
     const summary = monthKey ? monthByKey.get(monthKey) : null;
 
     if (summary) {
@@ -351,8 +355,8 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
 
   return {
     total: sourceClients.length,
-    novosHoje: sourceClients.filter((client) => getContactDateKey(client.dataEntrada) === todayDate).length,
-    novosMes: sourceClients.filter((client) => getContactMonthKey(client.dataEntrada) === currentMonthKey).length,
+    novosHoje: sourceClients.filter((client) => getContactDateKey(getContactCreatedValue(client)) === todayDate).length,
+    novosMes: sourceClients.filter((client) => getContactMonthKey(getContactCreatedValue(client)) === currentMonthKey).length,
     aguardandoContato: sourceClients.filter(
       (client) => client.etapa === "novo" || client.etapa === "contato",
     ).length,

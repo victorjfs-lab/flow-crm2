@@ -27,6 +27,7 @@ export interface Client {
   lista: string;
   etapa: StageId;
   dataEntrada: string;
+  createdAt?: string;
   ultimaInteracao: string;
   lembreteContato?: string | null;
   dataVenda?: string | null;
