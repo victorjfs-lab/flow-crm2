@@ -160,10 +160,11 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
         <MetricCard title="Total de Clientes" value={metrics.total} icon={Users} color="bg-primary" delay={0} />
-        <MetricCard title="Novos no Mês" value={metrics.novosMes} icon={UserPlus} color="bg-stage-novo" delay={0.05} />
-        <MetricCard title="Aguardando Contato" value={metrics.aguardandoContato} icon={Clock} color="bg-stage-espera" delay={0.1} />
+        <MetricCard title="Novos Hoje" value={metrics.novosHoje} icon={UserPlus} color="bg-stage-novo" delay={0.05} />
+        <MetricCard title="Novos no Mês" value={metrics.novosMes} icon={UserPlus} color="bg-stage-novo" delay={0.1} />
+        <MetricCard title="Aguardando Contato" value={metrics.aguardandoContato} icon={Clock} color="bg-stage-espera" delay={0.15} />
         <MetricCard title="Propostas em Aberto" value={metrics.propostasAbertas} icon={Send} color="bg-accent" delay={0.2} />
       </div>
 

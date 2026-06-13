@@ -15,6 +15,7 @@ export const FUNNEL_STAGE_LABELS: Record<StageId, string> = {
 };
 
 const stageLabelOverrides: Partial<Record<StageId, string>> = {};
+const BRAZIL_TIME_ZONE = "America/Sao_Paulo";
 
 export const FUNNEL_STAGE_ORDER: Record<StageId, number> = {
   espera: 1,
@@ -62,12 +63,61 @@ function parseValidDate(value?: string | null) {
   return parsedDate;
 }
 
-function formatMonthKey(date: Date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+function formatDateKey(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function formatMonthKey(year: number, month: number) {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+function getDatePartsInBrazil(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BRAZIL_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+  return {
+    year: Number(values.year),
+    month: Number(values.month),
+    day: Number(values.day),
+  };
+}
+
+function getBrazilDateKey(date: Date) {
+  const { year, month, day } = getDatePartsInBrazil(date);
+  return formatDateKey(year, month, day);
+}
+
+function getBrazilMonthKey(date: Date) {
+  const { year, month } = getDatePartsInBrazil(date);
+  return formatMonthKey(year, month);
+}
+
+export function getCurrentDateKey(referenceDate = new Date()) {
+  return getBrazilDateKey(referenceDate);
 }
 
 export function getCurrentMonthKey(referenceDate = new Date()) {
-  return formatMonthKey(referenceDate);
+  return getBrazilMonthKey(referenceDate);
+}
+
+function getContactDateKey(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateOnly) {
+    return `${dateOnly[1]}-${dateOnly[2]}-${dateOnly[3]}`;
+  }
+
+  const parsedDate = parseValidDate(value);
+  return parsedDate ? getBrazilDateKey(parsedDate) : null;
 }
 
 function getContactMonthKey(value?: string | null) {
@@ -75,13 +125,13 @@ function getContactMonthKey(value?: string | null) {
     return null;
   }
 
-  const isoMonth = value.match(/^(\d{4})-(\d{2})/);
-  if (isoMonth) {
-    return `${isoMonth[1]}-${isoMonth[2]}`;
+  const dateOnly = value.match(/^(\d{4})-(\d{2})-\d{2}$/);
+  if (dateOnly) {
+    return `${dateOnly[1]}-${dateOnly[2]}`;
   }
 
   const parsedDate = parseValidDate(value);
-  return parsedDate ? formatMonthKey(parsedDate) : null;
+  return parsedDate ? getBrazilMonthKey(parsedDate) : null;
 }
 
 function capitalizeMonthLabel(value: string) {
@@ -93,21 +143,25 @@ export function getRecentContactMonthSummary(
   monthsToShow = 4,
   referenceDate = new Date(),
 ) {
+  const referenceParts = getDatePartsInBrazil(referenceDate);
   const months = Array.from({ length: monthsToShow }, (_, index) => {
-    const date = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - index, 1);
+    const date = new Date(Date.UTC(referenceParts.year, referenceParts.month - 1 - index, 1, 12));
+    const monthKey = formatMonthKey(date.getUTCFullYear(), date.getUTCMonth() + 1);
 
     return {
-      monthKey: formatMonthKey(date),
+      monthKey,
       label: capitalizeMonthLabel(
         new Intl.DateTimeFormat("pt-BR", {
           month: "long",
           year: "numeric",
+          timeZone: "UTC",
         }).format(date),
       ),
       shortLabel: capitalizeMonthLabel(
         new Intl.DateTimeFormat("pt-BR", {
           month: "short",
           year: "numeric",
+          timeZone: "UTC",
         }).format(date),
       ),
       total: 0,
@@ -248,7 +302,7 @@ export function getPrimaryClientMessage(
 
 export function getClientMetrics(sourceClients: Client[] = clients) {
   const today = new Date();
-  const todayDate = today.toISOString().slice(0, 10);
+  const todayDate = getCurrentDateKey(today);
   const currentMonthKey = getCurrentMonthKey(today);
   const monthlySalesValue = sourceClients.reduce((total, client) => {
     if (!client.dataVenda || client.valorVenda == null) {
@@ -297,7 +351,7 @@ export function getClientMetrics(sourceClients: Client[] = clients) {
 
   return {
     total: sourceClients.length,
-    novosHoje: sourceClients.filter((client) => client.dataEntrada.startsWith(todayDate)).length,
+    novosHoje: sourceClients.filter((client) => getContactDateKey(client.dataEntrada) === todayDate).length,
     novosMes: sourceClients.filter((client) => getContactMonthKey(client.dataEntrada) === currentMonthKey).length,
     aguardandoContato: sourceClients.filter(
       (client) => client.etapa === "novo" || client.etapa === "contato",
